@@ -803,7 +803,9 @@ Lambaré | 2026-W11 | Tomate | 12100</textarea>
       const text = document.getElementById('bulkText').value.trim();
       if (!text) return;
       let ok = 0;
-      text.split(/\r?\n/).forEach(line => {
+      text.split(/
+?
+/).forEach(line => {
         const parts = line.split('|').map(x => x.trim());
         if (parts.length !== 4) return;
         const [city, week, product, priceText] = parts;
@@ -841,7 +843,8 @@ Lambaré | 2026-W11 | Tomate | 12100</textarea>
 
     function downloadCSV() {
       const rows = [['Semana', 'Ciudad', 'Producto', 'Precio']].concat(state.prices.map(p => [p.week, p.city, p.product, p.price]));
-      const csv = rows.map(r => r.join(';')).join('\n');
+      const csv = rows.map(r => r.join(';')).join('
+');
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -946,4 +949,4 @@ Lambaré | 2026-W11 | Tomate | 12100</textarea>
   </script>
 </body>
 </html>
-    
+
