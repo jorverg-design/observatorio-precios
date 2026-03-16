@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Observatorio de Precios Paraguay 3.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --bg: #08111f;
+      --bg2: #0d1830;
+      --panel: #101b31;
+      --panel2: #13233f;
+      --line: #23375f;
+      --text: #eaf1ff;
+      --muted: #9db0d3;
+      --accent: #4b93ff;
+      --accent2: #69d3ff;
+      --good: #57d38c;
+      --warn: #f2c24c;
+      --bad: #ff6f6f;
+      --shadow: 0 18px 44px rgba(0, 0, 0, .28);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(75,147,255,.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(105,211,255,.10), transparent 22%),
+        linear-gradient(180deg, #06101d, #0b1326 35%, #09111f 100%);
+    }
+
+    .shell {
+      max-width: 1560px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1.35fr .65fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(18,29,53,.96), rgba(11,19,35,.98));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 26px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: auto -40px -40px auto;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(75,147,255,.22), transparent 68%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(75,147,255,.10);
+      border: 1px solid rgba(75,147,255,.25);
+      color: #dfeaff;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 33px;
+      line-height: 1.1;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 900px;
+      font-size: 15px;
+    }
+
+    .hero-tags, .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .tag {
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      color: #dae6ff;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .side {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .side-title {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .side p {
+      color: var(--muted);
+      line-height: 1.6;
+      margin: 0;
+      font-size: 14px;
+    }
+
+    .btn, .file-label {
+      appearance: none;
+      border: 0;
+      border-radius: 14px;
+      padding: 11px 15px;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: transform .15s ease, opacity .15s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      background: linear-gradient(180deg, #4b93ff, #2e6fd7);
+      box-shadow: 0 10px 20px rgba(46,111,215,.24);
+    }
+
+    .btn:hover, .file-label:hover { transform: translateY(-1px); }
+    .btn.secondary, .file-label.secondary {
+      background: #152441;
+      border: 1px solid var(--line);
+      box-shadow: none;
+      color: var(--text);
+    }
+    .btn.warn { background: linear-gradient(180deg, #f2c24c, #d59d18); color: #1b1400; }
+    .btn.danger { background: linear-gradient(180deg, #ff8787, #e04d4d); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+
+    .kpi { grid-column: span 3; padding: 20px; }
+    .kpi-label { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+    .kpi-value { font-size: 29px; font-weight: 800; }
+    .kpi-foot { margin-top: 8px; font-size: 13px; font-weight: 700; }
+
+    .panel { padding: 20px; }
+    .panel h3 { margin: 0 0 14px; font-size: 19px; }
+    .notes { color: var(--muted); line-height: 1.65; font-size: 13px; }
+
+    .map-panel { grid-column: span 7; }
+    .ops-panel { grid-column: span 5; }
+    .chart-panel { grid-column: span 7; }
+    .rank-panel { grid-column: span 5; }
+    .full { grid-column: 1 / -1; }
+
+    .quick-guide {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .mini-guide {
+      border: 1px dashed rgba(255,255,255,.10);
+      border-radius: 18px;
+      padding: 16px;
+      background: rgba(255,255,255,.02);
+    }
+
+    .mini-guide strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    #paraguayMap {
+      height: 560px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .leaflet-container {
+      background: #dbe7f6;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    .city-pin {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 3px solid white;
+      box-shadow: 0 0 0 6px rgba(255,255,255,.18), 0 8px 16px rgba(0,0,0,.18);
+    }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: #cfe0ff;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: #0d1730;
+      color: var(--text);
+      padding: 12px 13px;
+      font: inherit;
+      outline: none;
+    }
+
+    textarea { min-height: 140px; resize: vertical; }
+
+    .box {
+      margin-top: 14px;
+      padding: 15px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr auto auto;
+      gap: 10px;
+      margin-bottom: 14px;
+      align-items: center;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+      background: rgba(255,255,255,.015);
+    }
+
+    th, td {
+      padding: 12px 13px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: #132441;
+      z-index: 1;
+    }
+
+    .right { text-align: right; }
+    .up { color: var(--bad); }
+    .down { color: var(--good); }
+    .flat { color: var(--warn); }
+
+    .pill {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .pill-good { background: rgba(87,211,140,.12); color: #8ff0b4; border: 1px solid rgba(87,211,140,.24); }
+    .pill-warn { background: rgba(242,194,76,.12); color: #ffd770; border: 1px solid rgba(242,194,76,.22); }
+    .pill-bad { background: rgba(255,111,111,.12); color: #ffaaaa; border: 1px solid rgba(255,111,111,.24); }
+
+    .status-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.025);
+    }
+
+    .hidden { display: none; }
+
+    @media (max-width: 1280px) {
+      .topbar, .grid { grid-template-columns: 1fr; }
+      .kpi, .map-panel, .ops-panel, .chart-panel, .rank-panel { grid-column: span 12; }
+      .toolbar { grid-template-columns: 1fr 1fr; }
+      .quick-guide { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 760px) {
+      .shell { padding: 14px; }
+      .form-grid, .toolbar { grid-template-columns: 1fr; }
+      h1 { font-size: 26px; }
+      #paraguayMap { height: 460px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="topbar">
+      <div class="card hero">
+        <div class="eyebrow">Observatorio de Comercio y Servicios · Paraguay</div>
+        <h1>Observatorio de Precios Paraguay 3.0</h1>
+        <p class="sub">
+          Panel ejecutivo con mapa real, monitoreo por ciudades, índice semanal automático,
+          ranking de productos, alertas de presión inflacionaria y estructura lista para publicar online.
+          Esta versión ya está pensada para una presentación institucional seria.
+        </p>
+        <div class="hero-tags">
+          <span class="tag">Importación Excel .xlsx</span>
+          <span class="tag">Mapa real con Leaflet</span>
+          <span class="tag">Índice nacional semanal</span>
+          <span class="tag">Ranking automático</span>
+          <span class="tag">Exportación JSON y CSV</span>
+          <span class="tag">Base local o demo online</span>
+        </div>
+      </div>
+
+      <div class="card side">
+        <div>
+          <h2 class="side-title">Acciones rápidas</h2>
+          <p>Primero abre el archivo en el navegador. Luego pulsa <strong>Cargar demo</strong> para ver el panel lleno con datos. Después ya puedes publicar el mismo archivo en GitHub Pages o Netlify.</p>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="seedDemoData()">Cargar demo</button>
+          <label class="file-label secondary">
+            Importar Excel
+            <input id="importExcel" type="file" accept=".xlsx,.xls,.csv" class="hidden" onchange="importExcelFile(event)">
+          </label>
+          <button class="btn secondary" onclick="downloadData()">Exportar JSON</button>
+          <label class="file-label secondary">
+            Importar JSON
+            <input id="importJson" type="file" accept="application/json" class="hidden" onchange="importData(event)">
+          </label>
+          <button class="btn secondary" onclick="downloadCSV()">Exportar CSV</button>
+          <button class="btn danger" onclick="resetAll()">Reiniciar</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card panel full">
+        <h3>Cómo dejarlo online correctamente</h3>
+        <div class="quick-guide">
+          <div class="mini-guide">
+            <strong>1. Guardar el archivo</strong>
+            <div class="notes">Guarda este contenido como <strong>index.html</strong> en una carpeta nueva. Usa <strong>UTF-8</strong> y <strong>Todos los archivos</strong>.</div>
+          </div>
+          <div class="mini-guide">
+            <strong>2. Probar localmente</strong>
+            <div class="notes">Haz doble clic en el archivo. Verifica el mapa real, el gráfico y el botón <strong>Cargar demo</strong>.</div>
+          </div>
+          <div class="mini-guide">
+            <strong>3. Publicarlo online</strong>
+            <div class="notes">Sube el archivo a GitHub Pages, Netlify o Railway Static. En esta versión ya no dependes de un mapa dibujado manualmente.</div>
+          </div>
+        </div>
+        <div class="box" style="margin-top:14px;">
+          <strong style="display:block; margin-bottom:8px;">Formato recomendado para importar Excel</strong>
+          <div class="notes">Usa una hoja con estas columnas exactas: <strong>Semana</strong>, <strong>Ciudad</strong>, <strong>Producto</strong>, <strong>Precio</strong>. Ejemplo: <strong>2026-W12 | Asunción | Tomate | 13200</strong>.</div>
+        </div>
+        <div class="box" style="margin-top:14px;">
+          <strong style="display:block; margin-bottom:8px;">Guía simple para subirlo a GitHub Pages</strong>
+          <div class="notes">1) Crea una cuenta en GitHub. 2) Crea un repositorio nuevo, por ejemplo <strong>observatorio-precios</strong>. 3) Sube el archivo <strong>index.html</strong>. 4) En <strong>Settings → Pages</strong>, activa la publicación desde la rama <strong>main</strong> y carpeta <strong>/root</strong>. 5) GitHub te dará el enlace público.</div>
+        </div>
+      </div>
+
+      <div class="card kpi">
+        <div class="kpi-label">Índice nacional semanal</div>
+        <div id="kpiIndex" class="kpi-value">100,0</div>
+        <div id="kpiIndexFoot" class="kpi-foot flat">Sin variación</div>
+      </div>
+      <div class="card kpi">
+        <div class="kpi-label">Ciudad con mayor presión</div>
+        <div id="kpiCity" class="kpi-value">—</div>
+        <div id="kpiCityFoot" class="kpi-foot flat">Sin datos</div>
+      </div>
+      <div class="card kpi">
+        <div class="kpi-label">Producto más volátil</div>
+        <div id="kpiProduct" class="kpi-value">—</div>
+        <div id="kpiProductFoot" class="kpi-foot flat">Sin datos</div>
+      </div>
+      <div class="card kpi">
+        <div class="kpi-label">Alertas activas</div>
+        <div id="kpiAlerts" class="kpi-value">0</div>
+        <div class="kpi-foot">Amarillas y rojas</div>
+      </div>
+
+      <div class="card panel map-panel">
+        <h3>Mapa real de Paraguay y monitoreo por ciudades</h3>
+        <div id="paraguayMap"></div>
+        <div class="legend">
+          <span><i class="dot" style="background:#57d38c"></i> Normal</span>
+          <span><i class="dot" style="background:#f2c24c"></i> Presión inflacionaria</span>
+          <span><i class="dot" style="background:#ff6f6f"></i> Aumento fuerte</span>
+        </div>
+        <div class="notes" style="margin-top:10px;">La clasificación del punto se calcula por la variación semanal promedio observada en cada ciudad.</div>
+      </div>
+
+      <div class="card panel ops-panel">
+        <h3>Carga de precios y operación</h3>
+        <div class="form-grid">
+          <div>
+            <label>Semana</label>
+            <input id="weekInput" type="week">
+          </div>
+          <div>
+            <label>Ciudad</label>
+            <select id="cityInput"></select>
+          </div>
+          <div>
+            <label>Producto</label>
+            <select id="productInput"></select>
+          </div>
+          <div>
+            <label>Precio (Gs.)</label>
+            <input id="priceInput" type="number" min="0" step="1" placeholder="Ej. 14500">
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="savePrice()">Guardar precio</button>
+          <button class="btn secondary" onclick="toggleBulk()">Carga rápida</button>
+        </div>
+
+        <div id="bulkBox" class="box hidden">
+          <label>Pegado masivo</label>
+          <div class="notes" style="margin-bottom:8px;">Formato: ciudad | semana | producto | precio</div>
+          <textarea id="bulkText">Asunción | 2026-W11 | Tomate | 12500
+Lambaré | 2026-W11 | Tomate | 12100</textarea>
+          <div class="actions">
+            <button class="btn" onclick="processBulkPaste()">Procesar</button>
+            <button class="btn secondary" onclick="toggleBulk()">Cerrar</button>
+          </div>
+        </div>
+
+        <div class="box">
+          <strong style="display:block; margin-bottom:6px;">Metodología base del panel</strong>
+          <div class="notes">
+            Índice semanal por ciudad = promedio actual / promedio de semana base × 100.<br>
+            Alerta amarilla: variación semanal ≥ 5%.<br>
+            Alerta roja: variación semanal ≥ 10%.
+          </div>
+        </div>
+
+        <div class="box">
+          <strong style="display:block; margin-bottom:8px;">Identidad institucional sugerida</strong>
+          <div class="notes" style="margin-bottom:10px;">Título sugerido: <strong>Observatorio de Precios de la Canasta - Viceministerio de Comercio y Servicios</strong>. Puedes reemplazar el título principal por el nombre institucional y añadir el logo del MIC en la cabecera.</div>
+        </div>
+
+        <div class="box">
+          <strong style="display:block; margin-bottom:8px;">Estado del sistema</strong>
+          <div class="status-list">
+            <div class="status-row"><span>Mapa real online</span><strong>Sí</strong></div>
+            <div class="status-row"><span>Panel ejecutivo</span><strong>Sí</strong></div>
+            <div class="status-row"><span>Demo institucional</span><strong>Sí</strong></div>
+            <div class="status-row"><span>Listo para GitHub Pages</span><strong>Sí</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card panel chart-panel">
+        <h3>Evolución del índice nacional</h3>
+        <canvas id="nationalChart" height="120"></canvas>
+      </div>
+
+      <div class="card panel rank-panel">
+        <h3>Ranking de productos</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Producto</th>
+                <th>Prom. actual</th>
+                <th>Prom. previo</th>
+                <th>Variación</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="rankingBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card panel full">
+        <div class="toolbar">
+          <input id="searchBox" placeholder="Buscar por ciudad, producto o semana..." oninput="renderPriceTable()">
+          <select id="filterCity" onchange="renderPriceTable()"></select>
+          <select id="filterProduct" onchange="renderPriceTable()"></select>
+          <select id="filterWeek" onchange="renderPriceTable()"></select>
+          <button class="btn secondary" onclick="downloadCSV()">Exportar CSV</button>
+          <button class="btn warn" onclick="deleteCurrentSelection()">Eliminar selección</button>
+        </div>
+        <h3>Base de precios semanales</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Semana</th>
+                <th>Ciudad</th>
+                <th>Producto</th>
+                <th class="right">Precio (Gs.)</th>
+                <th class="right">Variación</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="priceBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'observatorio_precios_py_v3';
+    const BASE_WEEK = '2026-W10';
+
+    const CITY_META = {
+      'Asunción': { lat: -25.2867, lng: -57.3333 },
+      'Lambaré': { lat: -25.3468, lng: -57.6065 },
+      'San Lorenzo': { lat: -25.3397, lng: -57.5088 },
+      'Capiatá': { lat: -25.3552, lng: -57.4455 },
+      'Luque': { lat: -25.2686, lng: -57.4919 },
+      'Fernando de la Mora': { lat: -25.3386, lng: -57.5217 },
+      'Encarnación': { lat: -27.3306, lng: -55.8667 },
+      'Ciudad del Este': { lat: -25.5097, lng: -54.6111 },
+      'Coronel Oviedo': { lat: -25.4444, lng: -56.4403 },
+      'Pedro Juan Caballero': { lat: -22.5472, lng: -55.7333 },
+      'Concepción': { lat: -23.4064, lng: -57.4344 }
+    };
+
+    const DEFAULT_PRODUCTS = ['Tomate', 'Carne vacuna', 'Aceite', 'Arroz', 'Azúcar', 'Papa', 'Cebolla', 'Pollo', 'Huevos', 'Harina'];
+
+    let state = loadState();
+    let nationalChart = null;
+    let map = null;
+    let markersLayer = null;
+
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+      return {
+        cities: Object.keys(CITY_META),
+        products: [...DEFAULT_PRODUCTS],
+        prices: []
+      };
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function fmtGs(v) {
+      return Number(v || 0).toLocaleString('es-PY');
+    }
+
+    function fmtPct(v) {
+      if (v == null || Number.isNaN(v)) return '—';
+      return `${v >= 0 ? '+' : ''}${v.toFixed(1).replace('.', ',')}%`;
+    }
+
+    function sortWeek(w) {
+      const [y, n] = w.split('-W');
+      return Number(y) * 100 + Number(n);
+    }
+
+    function getWeeks() {
+      return [...new Set(state.prices.map(p => p.week))].sort((a, b) => sortWeek(a) - sortWeek(b));
+    }
+
+    function getLatestWeek() {
+      const weeks = getWeeks();
+      return weeks.length ? weeks[weeks.length - 1] : BASE_WEEK;
+    }
+
+    function getPreviousWeek(week) {
+      const weeks = getWeeks();
+      const idx = weeks.indexOf(week);
+      return idx > 0 ? weeks[idx - 1] : null;
+    }
+
+    function setDefaultWeek() {
+      const input = document.getElementById('weekInput');
+      input.value = getLatestWeek() || BASE_WEEK;
+    }
+
+    function fillSelectors() {
+      document.getElementById('cityInput').innerHTML = state.cities.map(c => `<option>${c}</option>`).join('');
+      document.getElementById('productInput').innerHTML = state.products.map(p => `<option>${p}</option>`).join('');
+      document.getElementById('filterCity').innerHTML = `<option value="">Todas las ciudades</option>` + state.cities.map(c => `<option>${c}</option>`).join('');
+      document.getElementById('filterProduct').innerHTML = `<option value="">Todos los productos</option>` + state.products.map(p => `<option>${p}</option>`).join('');
+      document.getElementById('filterWeek').innerHTML = `<option value="">Todas las semanas</option>` + getWeeks().reverse().map(w => `<option>${w}</option>`).join('');
+    }
+
+    function upsertPrice(entry) {
+      const idx = state.prices.findIndex(x => x.week === entry.week && x.city === entry.city && x.product === entry.product);
+      if (idx >= 0) state.prices[idx] = entry;
+      else state.prices.push(entry);
+    }
+
+    function savePrice() {
+      const week = document.getElementById('weekInput').value;
+      const city = document.getElementById('cityInput').value;
+      const product = document.getElementById('productInput').value;
+      const price = Number(document.getElementById('priceInput').value);
+      if (!week || !city || !product || !price) {
+        alert('Completa semana, ciudad, producto y precio.');
+        return;
+      }
+      upsertPrice({ week, city, product, price });
+      saveState();
+      document.getElementById('priceInput').value = '';
+      refreshAll();
+    }
+
+    function getAvgPrice(week, city = null, product = null) {
+      const rows = state.prices.filter(p => p.week === week && (!city || p.city === city) && (!product || p.product === product));
+      if (!rows.length) return null;
+      return rows.reduce((sum, row) => sum + Number(row.price), 0) / rows.length;
+    }
+
+    function getVariation(current, previous) {
+      if (current == null || previous == null || previous === 0) return null;
+      return ((current / previous) - 1) * 100;
+    }
+
+    function getCityVariation(city, week) {
+      const prev = getPreviousWeek(week);
+      return getVariation(getAvgPrice(week, city), prev ? getAvgPrice(prev, city) : null);
+    }
+
+    function getCityIndex(city, week) {
+      const base = getAvgPrice(BASE_WEEK, city);
+      const current = getAvgPrice(week, city);
+      if (base == null || current == null || base === 0) return null;
+      return current / base * 100;
+    }
+
+    function getAlertLevel(variation) {
+      if (variation == null) return { text: 'Sin base', className: 'pill-good', color: '#57d38c' };
+      if (variation >= 10) return { text: 'Alerta roja', className: 'pill-bad', color: '#ff6f6f' };
+      if (variation >= 5) return { text: 'Alerta amarilla', className: 'pill-warn', color: '#f2c24c' };
+      return { text: 'Normal', className: 'pill-good', color: '#57d38c' };
+    }
+
+    function getNationalSeries() {
+      const base = getAvgPrice(BASE_WEEK);
+      return getWeeks().map(week => {
+        const current = getAvgPrice(week);
+        const index = current != null && base ? current / base * 100 : null;
+        return { week, index };
+      }).filter(x => x.index != null);
+    }
+
+    function getProductRanking() {
+      const latest = getLatestWeek();
+      const prev = getPreviousWeek(latest);
+      return state.products.map(product => {
+        const current = getAvgPrice(latest, null, product);
+        const previous = prev ? getAvgPrice(prev, null, product) : null;
+        const variation = getVariation(current, previous);
+        return { product, current, previous, variation };
+      }).filter(x => x.current != null)
+        .sort((a, b) => (b.variation ?? -999) - (a.variation ?? -999));
+    }
+
+    function updateKPIs() {
+      const latest = getLatestWeek();
+      const prev = getPreviousWeek(latest);
+      const base = getAvgPrice(BASE_WEEK);
+      const current = getAvgPrice(latest);
+      const nationalIndex = current != null && base ? current / base * 100 : 100;
+      const nationalVariation = getVariation(current, prev ? getAvgPrice(prev) : null);
+      document.getElementById('kpiIndex').textContent = nationalIndex.toFixed(1).replace('.', ',');
+      const a = document.getElementById('kpiIndexFoot');
+      a.textContent = nationalVariation == null ? 'Sin variación' : `Variación semanal ${fmtPct(nationalVariation)}`;
+      a.className = `kpi-foot ${nationalVariation > 0 ? 'up' : nationalVariation < 0 ? 'down' : 'flat'}`;
+
+      const cities = state.cities.map(city => ({ city, variation: getCityVariation(city, latest), index: getCityIndex(city, latest) }))
+        .filter(x => x.variation != null)
+        .sort((a, b) => b.variation - a.variation);
+      const topCity = cities[0];
+      document.getElementById('kpiCity').textContent = topCity ? topCity.city : '—';
+      const b = document.getElementById('kpiCityFoot');
+      b.textContent = topCity ? `${fmtPct(topCity.variation)} | Índice ${topCity.index.toFixed(1).replace('.', ',')}` : 'Sin datos';
+      b.className = `kpi-foot ${topCity && topCity.variation > 0 ? 'up' : 'flat'}`;
+
+      const ranking = getProductRanking();
+      const topProduct = ranking[0];
+      document.getElementById('kpiProduct').textContent = topProduct ? topProduct.product : '—';
+      const c = document.getElementById('kpiProductFoot');
+      c.textContent = topProduct && topProduct.variation != null ? fmtPct(topProduct.variation) : 'Sin datos';
+      c.className = `kpi-foot ${topProduct && topProduct.variation > 0 ? 'up' : 'flat'}`;
+
+      document.getElementById('kpiAlerts').textContent = ranking.filter(r => (r.variation ?? 0) >= 5).length;
+    }
+
+    function initMap() {
+      if (map) return;
+      map = L.map('paraguayMap', { zoomControl: true, attributionControl: true }).setView([-23.3, -58.2], 6);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(map);
+      markersLayer = L.layerGroup().addTo(map);
+    }
+
+    function renderMap() {
+      initMap();
+      markersLayer.clearLayers();
+      const latest = getLatestWeek();
+      state.cities.forEach(city => {
+        const meta = CITY_META[city];
+        if (!meta) return;
+        const variation = getCityVariation(city, latest);
+        const index = getCityIndex(city, latest);
+        const alert = getAlertLevel(variation);
+        const icon = L.divIcon({
+          className: '',
+          html: `<div class="city-pin" style="background:${alert.color}"></div>`,
+          iconSize: [18, 18],
+          iconAnchor: [9, 9]
+        });
+        const marker = L.marker([meta.lat, meta.lng], { icon }).addTo(markersLayer);
+        marker.bindPopup(`
+          <div style="font-family:Inter,sans-serif; min-width:180px; color:#10203b;">
+            <strong style="font-size:14px;">${city}</strong><br>
+            Índice: ${index != null ? index.toFixed(1).replace('.', ',') : '—'}<br>
+            Variación semanal: ${variation != null ? fmtPct(variation) : '—'}<br>
+            Estado: ${alert.text}
+          </div>
+        `);
+      });
+    }
+
+    function renderChart() {
+      const series = getNationalSeries();
+      const ctx = document.getElementById('nationalChart');
+      if (nationalChart) nationalChart.destroy();
+      nationalChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: series.map(s => s.week),
+          datasets: [{
+            label: 'Índice nacional',
+            data: series.map(s => Number(s.index.toFixed(2))),
+            borderColor: '#4b93ff',
+            backgroundColor: 'rgba(75,147,255,.14)',
+            fill: true,
+            tension: .28,
+            pointRadius: 4,
+            pointBackgroundColor: '#69d3ff'
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#dbe8ff' } } },
+          scales: {
+            x: { ticks: { color: '#9db0d3' }, grid: { color: 'rgba(255,255,255,.07)' } },
+            y: { ticks: { color: '#9db0d3' }, grid: { color: 'rgba(255,255,255,.07)' } }
+          }
+        }
+      });
+    }
+
+    function renderRanking() {
+      const body = document.getElementById('rankingBody');
+      const ranking = getProductRanking();
+      body.innerHTML = ranking.map((r, i) => {
+        const level = getAlertLevel(r.variation);
+        return `
+          <tr>
+            <td>${i + 1}</td>
+            <td>${r.product}</td>
+            <td>${r.current != null ? fmtGs(r.current) : '—'}</td>
+            <td>${r.previous != null ? fmtGs(r.previous) : '—'}</td>
+            <td class="${(r.variation ?? 0) > 0 ? 'up' : 'flat'}">${fmtPct(r.variation)}</td>
+            <td><span class="pill ${level.className}">${level.text}</span></td>
+          </tr>
+        `;
+      }).join('') || `<tr><td colspan="6">Sin datos aún.</td></tr>`;
+    }
+
+    function renderPriceTable() {
+      const q = document.getElementById('searchBox').value.toLowerCase().trim();
+      const city = document.getElementById('filterCity').value;
+      const product = document.getElementById('filterProduct').value;
+      const week = document.getElementById('filterWeek').value;
+      const rows = [...state.prices]
+        .sort((a, b) => sortWeek(b.week) - sortWeek(a.week) || a.city.localeCompare(b.city) || a.product.localeCompare(b.product))
+        .filter(r => !city || r.city === city)
+        .filter(r => !product || r.product === product)
+        .filter(r => !week || r.week === week)
+        .filter(r => !q || `${r.city} ${r.product} ${r.week}`.toLowerCase().includes(q));
+      document.getElementById('priceBody').innerHTML = rows.map((r, idx) => {
+        const prevWeek = getPreviousWeek(r.week);
+        const prevPrice = prevWeek ? state.prices.find(x => x.week === prevWeek && x.city === r.city && x.product === r.product)?.price : null;
+        const variation = getVariation(r.price, prevPrice);
+        const level = getAlertLevel(variation);
+        return `
+          <tr>
+            <td><input type="checkbox" data-key="${encodeURIComponent(JSON.stringify(r))}"></td>
+            <td>${r.week}</td>
+            <td>${r.city}</td>
+            <td>${r.product}</td>
+            <td class="right">${fmtGs(r.price)}</td>
+            <td class="right ${(variation ?? 0) > 0 ? 'up' : 'flat'}">${fmtPct(variation)}</td>
+            <td><span class="pill ${level.className}">${level.text}</span></td>
+          </tr>
+        `;
+      }).join('') || `<tr><td colspan="7">No se encontraron registros.</td></tr>`;
+    }
+
+    function refreshAll() {
+      fillSelectors();
+      setDefaultWeek();
+      updateKPIs();
+      renderMap();
+      renderChart();
+      renderRanking();
+      renderPriceTable();
+    }
+
+    function toggleBulk() {
+      document.getElementById('bulkBox').classList.toggle('hidden');
+    }
+
+    function processBulkPaste() {
+      const text = document.getElementById('bulkText').value.trim();
+      if (!text) return;
+      let ok = 0;
+      text.split(/\r?\n/).forEach(line => {
+        const parts = line.split('|').map(x => x.trim());
+        if (parts.length !== 4) return;
+        const [city, week, product, priceText] = parts;
+        const price = Number(priceText.replace(/\./g, '').replace(',', '.'));
+        if (!city || !week || !product || !price) return;
+        if (!state.cities.includes(city)) state.cities.push(city);
+        if (!state.products.includes(product)) state.products.push(product);
+        upsertPrice({ city, week, product, price });
+        ok++;
+      });
+      saveState();
+      refreshAll();
+      alert(`Registros procesados: ${ok}`);
+    }
+
+    function deleteCurrentSelection() {
+      const selected = [...document.querySelectorAll('#priceBody input[type="checkbox"]:checked')]
+        .map(x => JSON.parse(decodeURIComponent(x.dataset.key)));
+      if (!selected.length) {
+        alert('Selecciona al menos un registro.');
+        return;
+      }
+      state.prices = state.prices.filter(p => !selected.some(s => s.week === p.week && s.city === p.city && s.product === p.product && Number(s.price) === Number(p.price)));
+      saveState();
+      refreshAll();
+    }
+
+    function downloadData() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'observatorio_precios_paraguay_v3.json';
+      a.click();
+    }
+
+    function downloadCSV() {
+      const rows = [['Semana', 'Ciudad', 'Producto', 'Precio']].concat(state.prices.map(p => [p.week, p.city, p.product, p.price]));
+      const csv = rows.map(r => r.join(';')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'base_precios_semanales.csv';
+      a.click();
+    }
+
+    function importExcelFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const name = file.name.toLowerCase();
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          let workbook;
+          if (name.endsWith('.csv')) {
+            workbook = XLSX.read(e.target.result, { type: 'string' });
+          } else {
+            workbook = XLSX.read(e.target.result, { type: 'array' });
+          }
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+          const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
+          let ok = 0;
+          rows.forEach(row => {
+            const week = String(row.Semana || row.semana || '').trim();
+            const city = String(row.Ciudad || row.ciudad || '').trim();
+            const product = String(row.Producto || row.producto || '').trim();
+            const priceRaw = row.Precio ?? row.precio ?? '';
+            const price = Number(String(priceRaw).replace(/\./g, '').replace(',', '.'));
+            if (!week || !city || !product || !price) return;
+            if (!state.cities.includes(city)) state.cities.push(city);
+            if (!state.products.includes(product)) state.products.push(product);
+            upsertPrice({ week, city, product, price });
+            ok++;
+          });
+          saveState();
+          refreshAll();
+          alert(`Importación completada. Registros cargados: ${ok}`);
+        } catch (err) {
+          alert('No se pudo leer el archivo Excel. Verifica columnas: Semana, Ciudad, Producto, Precio.');
+        }
+      };
+      if (name.endsWith('.csv')) reader.readAsText(file, 'utf-8');
+      else reader.readAsArrayBuffer(file);
+      event.target.value = '';
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!data.cities || !data.products || !data.prices) throw new Error('Formato inválido');
+          state = data;
+          saveState();
+          refreshAll();
+          alert('Datos importados correctamente.');
+        } catch {
+          alert('No se pudo importar el archivo JSON.');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function resetAll() {
+      if (!confirm('Esto eliminará los datos guardados en este navegador.')) return;
+      localStorage.removeItem(STORAGE_KEY);
+      state = loadState();
+      refreshAll();
+    }
+
+    function seedDemoData() {
+      state = { cities: Object.keys(CITY_META), products: [...DEFAULT_PRODUCTS], prices: [] };
+      const data = [
+        ['2026-W10','Asunción','Tomate',9800],['2026-W10','Lambaré','Tomate',9600],['2026-W10','San Lorenzo','Tomate',9900],['2026-W10','Capiatá','Tomate',9700],['2026-W10','Luque','Tomate',9850],['2026-W10','Fernando de la Mora','Tomate',9750],['2026-W10','Encarnación','Tomate',9400],['2026-W10','Ciudad del Este','Tomate',9300],['2026-W10','Coronel Oviedo','Tomate',9500],['2026-W10','Pedro Juan Caballero','Tomate',9200],['2026-W10','Concepción','Tomate',9350],
+        ['2026-W10','Asunción','Carne vacuna',35500],['2026-W10','Lambaré','Carne vacuna',35200],['2026-W10','San Lorenzo','Carne vacuna',35600],['2026-W10','Capiatá','Carne vacuna',35100],['2026-W10','Luque','Carne vacuna',35400],['2026-W10','Fernando de la Mora','Carne vacuna',35350],['2026-W10','Encarnación','Carne vacuna',34800],['2026-W10','Ciudad del Este','Carne vacuna',34600],['2026-W10','Coronel Oviedo','Carne vacuna',34950],['2026-W10','Pedro Juan Caballero','Carne vacuna',34700],['2026-W10','Concepción','Carne vacuna',34850],
+        ['2026-W10','Asunción','Aceite',14800],['2026-W10','Lambaré','Aceite',14700],['2026-W10','San Lorenzo','Aceite',14900],['2026-W10','Capiatá','Aceite',14850],['2026-W10','Luque','Aceite',14950],['2026-W10','Fernando de la Mora','Aceite',14820],['2026-W10','Encarnación','Aceite',14500],['2026-W10','Ciudad del Este','Aceite',14450],['2026-W10','Coronel Oviedo','Aceite',14650],['2026-W10','Pedro Juan Caballero','Aceite',14580],['2026-W10','Concepción','Aceite',14610],
+        ['2026-W11','Asunción','Tomate',11800],['2026-W11','Lambaré','Tomate',11650],['2026-W11','San Lorenzo','Tomate',12100],['2026-W11','Capiatá','Tomate',11900],['2026-W11','Luque','Tomate',12000],['2026-W11','Fernando de la Mora','Tomate',11750],['2026-W11','Encarnación','Tomate',11100],['2026-W11','Ciudad del Este','Tomate',11050],['2026-W11','Coronel Oviedo','Tomate',11300],['2026-W11','Pedro Juan Caballero','Tomate',10900],['2026-W11','Concepción','Tomate',11200],
+        ['2026-W11','Asunción','Carne vacuna',36800],['2026-W11','Lambaré','Carne vacuna',36500],['2026-W11','San Lorenzo','Carne vacuna',36950],['2026-W11','Capiatá','Carne vacuna',36400],['2026-W11','Luque','Carne vacuna',36700],['2026-W11','Fernando de la Mora','Carne vacuna',36620],['2026-W11','Encarnación','Carne vacuna',35800],['2026-W11','Ciudad del Este','Carne vacuna',35750],['2026-W11','Coronel Oviedo','Carne vacuna',36000],['2026-W11','Pedro Juan Caballero','Carne vacuna',35650],['2026-W11','Concepción','Carne vacuna',35980],
+        ['2026-W11','Aceite','Aceite',15100],
+        ['2026-W11','Asunción','Aceite',15100],['2026-W11','Lambaré','Aceite',15050],['2026-W11','San Lorenzo','Aceite',15220],['2026-W11','Capiatá','Aceite',15180],['2026-W11','Luque','Aceite',15250],['2026-W11','Fernando de la Mora','Aceite',15150],['2026-W11','Encarnación','Aceite',14720],['2026-W11','Ciudad del Este','Aceite',14680],['2026-W11','Coronel Oviedo','Aceite',14810],['2026-W11','Pedro Juan Caballero','Aceite',14750],['2026-W11','Concepción','Aceite',14800],
+        ['2026-W12','Asunción','Tomate',13200],['2026-W12','Lambaré','Tomate',12950],['2026-W12','San Lorenzo','Tomate',13500],['2026-W12','Capiatá','Tomate',13320],['2026-W12','Luque','Tomate',13400],['2026-W12','Fernando de la Mora','Tomate',13100],['2026-W12','Encarnación','Tomate',12200],['2026-W12','Ciudad del Este','Tomate',12050],['2026-W12','Coronel Oviedo','Tomate',12450],['2026-W12','Pedro Juan Caballero','Tomate',11980],['2026-W12','Concepción','Tomate',12300],
+        ['2026-W12','Asunción','Carne vacuna',37900],['2026-W12','Lambaré','Carne vacuna',37600],['2026-W12','San Lorenzo','Carne vacuna',38120],['2026-W12','Capiatá','Carne vacuna',37480],['2026-W12','Luque','Carne vacuna',37810],['2026-W12','Fernando de la Mora','Carne vacuna',37750],['2026-W12','Encarnación','Carne vacuna',36580],['2026-W12','Ciudad del Este','Carne vacuna',36300],['2026-W12','Coronel Oviedo','Carne vacuna',36950],['2026-W12','Pedro Juan Caballero','Carne vacuna',36280],['2026-W12','Concepción','Carne vacuna',36640],
+        ['2026-W12','Asunción','Aceite',15480],['2026-W12','Lambaré','Aceite',15390],['2026-W12','San Lorenzo','Aceite',15620],['2026-W12','Capiatá','Aceite',15580],['2026-W12','Luque','Aceite',15610],['2026-W12','Fernando de la Mora','Aceite',15490],['2026-W12','Encarnación','Aceite',14910],['2026-W12','Ciudad del Este','Aceite',14880],['2026-W12','Coronel Oviedo','Aceite',15050],['2026-W12','Pedro Juan Caballero','Aceite',14980],['2026-W12','Concepción','Aceite',15010],
+        ['2026-W12','Asunción','Arroz',8900],['2026-W12','Lambaré','Arroz',8800],['2026-W12','San Lorenzo','Arroz',9050],['2026-W12','Capiatá','Arroz',8950],['2026-W12','Luque','Arroz',9020],['2026-W12','Fernando de la Mora','Arroz',8960],['2026-W12','Encarnación','Arroz',8700],['2026-W12','Ciudad del Este','Arroz',8680],['2026-W12','Coronel Oviedo','Arroz',8750],['2026-W12','Pedro Juan Caballero','Arroz',8600],['2026-W12','Concepción','Arroz',8720]
+      ];
+      data.forEach(row => {
+        const [week, city, product, price] = row;
+        if (CITY_META[city]) state.prices.push({ week, city, product, price });
+      });
+      saveState();
+      refreshAll();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fillSelectors();
+      setDefaultWeek();
+      initMap();
+      if (!state.prices.length) seedDemoData();
+      else refreshAll();
+    });
+  </script>
+</body>
+</html>
