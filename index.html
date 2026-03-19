@@ -3,161 +3,162 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Observatorio de Precios Paraguay 4.0</title>
+  <title>Observatorio de Precios Paraguay 5.1</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <style>
-    :root {
-      --bg: #08111f;
-      --bg2: #0d1830;
-      --panel: #101b31;
-      --panel2: #13233f;
-      --line: #23375f;
-      --text: #eaf1ff;
-      --muted: #9db0d3;
-      --accent: #4b93ff;
-      --accent2: #69d3ff;
-      --good: #57d38c;
-      --warn: #f2c24c;
-      --bad: #ff6f6f;
-      --shadow: 0 18px 44px rgba(0, 0, 0, .28);
-      --radius: 22px;
+    :root{
+      --line:#23375f;
+      --text:#eaf1ff;
+      --muted:#9db0d3;
+      --good:#57d38c;
+      --warn:#f2c24c;
+      --bad:#ff6f6f;
+      --shadow:0 18px 44px rgba(0,0,0,.28);
+      --radius:22px;
     }
-    * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      color: var(--text);
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:'Inter',system-ui,sans-serif;
+      color:var(--text);
       background:
         radial-gradient(circle at top left, rgba(75,147,255,.18), transparent 28%),
         radial-gradient(circle at top right, rgba(105,211,255,.10), transparent 22%),
-        linear-gradient(180deg, #06101d, #0b1326 35%, #09111f 100%);
+        linear-gradient(180deg,#06101d,#0b1326 35%,#09111f 100%);
     }
-    .shell { max-width: 1560px; margin: 0 auto; padding: 20px; }
-    .topbar { display: grid; grid-template-columns: 1.35fr .65fr; gap: 18px; margin-bottom: 18px; }
-    .card {
-      background: linear-gradient(180deg, rgba(18,29,53,.96), rgba(11,19,35,.98));
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+    .shell{max-width:1650px;margin:0 auto;padding:20px}
+    .topbar{display:grid;grid-template-columns:1.35fr .65fr;gap:18px;margin-bottom:18px}
+    .card{
+      background:linear-gradient(180deg,rgba(18,29,53,.96),rgba(11,19,35,.98));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
     }
-    .hero { padding: 26px 28px; position: relative; overflow: hidden; }
-    .hero::after {
-      content: '';
-      position: absolute;
-      inset: auto -40px -40px auto;
-      width: 220px; height: 220px;
-      background: radial-gradient(circle, rgba(75,147,255,.22), transparent 68%);
-      pointer-events: none;
+    .hero{padding:26px 28px;position:relative;overflow:hidden}
+    .hero::after{
+      content:'';
+      position:absolute;
+      inset:auto -40px -40px auto;
+      width:220px;height:220px;
+      background:radial-gradient(circle,rgba(75,147,255,.22),transparent 68%);
+      pointer-events:none;
     }
-    .eyebrow {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 8px 12px; border-radius: 999px;
-      background: rgba(75,147,255,.10); border: 1px solid rgba(75,147,255,.25);
-      color: #dfeaff; font-size: 12px; font-weight: 700; letter-spacing: .3px;
-      text-transform: uppercase; margin-bottom: 14px;
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 12px;border-radius:999px;
+      background:rgba(75,147,255,.10);
+      border:1px solid rgba(75,147,255,.25);
+      color:#dfeaff;font-size:12px;font-weight:700;letter-spacing:.3px;
+      text-transform:uppercase;margin-bottom:14px;
     }
-    h1 { margin: 0 0 10px; font-size: 33px; line-height: 1.1; }
-    .sub { margin: 0; color: var(--muted); line-height: 1.65; max-width: 900px; font-size: 15px; }
-    .hero-tags, .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
-    .tag {
-      padding: 9px 12px; border-radius: 999px; background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08); color: #dae6ff; font-size: 12px; font-weight: 600;
+    h1{margin:0 0 10px;font-size:34px;line-height:1.08}
+    .sub{margin:0;color:var(--muted);line-height:1.65;max-width:960px;font-size:15px}
+    .hero-tags,.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .tag{
+      padding:9px 12px;border-radius:999px;background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);color:#dae6ff;font-size:12px;font-weight:600;
     }
-    .side { padding: 22px; display: flex; flex-direction: column; justify-content: space-between; gap: 14px; }
-    .side-title { margin: 0; font-size: 18px; font-weight: 800; }
-    .side p { color: var(--muted); line-height: 1.6; margin: 0; font-size: 14px; }
-    .btn, .file-label {
-      appearance: none; border: 0; border-radius: 14px; padding: 11px 15px;
-      font-weight: 700; font-size: 14px; cursor: pointer; transition: transform .15s ease, opacity .15s ease;
-      text-decoration: none; display: inline-flex; align-items: center; justify-content: center;
-      color: white; background: linear-gradient(180deg, #4b93ff, #2e6fd7); box-shadow: 0 10px 20px rgba(46,111,215,.24);
+    .side{padding:22px;display:flex;flex-direction:column;justify-content:space-between;gap:14px}
+    .side-title{margin:0;font-size:18px;font-weight:800}
+    .side p{color:var(--muted);line-height:1.6;margin:0;font-size:14px}
+    .btn,.file-label{
+      appearance:none;border:0;border-radius:14px;padding:11px 15px;
+      font-weight:700;font-size:14px;cursor:pointer;transition:transform .15s ease;
+      text-decoration:none;display:inline-flex;align-items:center;justify-content:center;
+      color:white;background:linear-gradient(180deg,#4b93ff,#2e6fd7);
+      box-shadow:0 10px 20px rgba(46,111,215,.24);
     }
-    .btn:hover, .file-label:hover { transform: translateY(-1px); }
-    .btn.secondary, .file-label.secondary {
-      background: #152441; border: 1px solid var(--line); box-shadow: none; color: var(--text);
+    .btn:hover,.file-label:hover{transform:translateY(-1px)}
+    .btn.secondary,.file-label.secondary{
+      background:#152441;border:1px solid var(--line);box-shadow:none;color:var(--text)
     }
-    .btn.warn { background: linear-gradient(180deg, #f2c24c, #d59d18); color: #1b1400; }
-    .btn.danger { background: linear-gradient(180deg, #ff8787, #e04d4d); }
-    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
-    .kpi { grid-column: span 3; padding: 20px; }
-    .kpi-label { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
-    .kpi-value { font-size: 29px; font-weight: 800; }
-    .kpi-foot { margin-top: 8px; font-size: 13px; font-weight: 700; }
-    .panel { padding: 20px; }
-    .panel h3 { margin: 0 0 14px; font-size: 19px; }
-    .notes { color: var(--muted); line-height: 1.65; font-size: 13px; }
-    .map-panel { grid-column: span 7; }
-    .ops-panel { grid-column: span 5; }
-    .chart-panel { grid-column: span 7; }
-    .rank-panel { grid-column: span 5; }
-    .full { grid-column: 1 / -1; }
-    .quick-guide { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    .mini-guide {
-      border: 1px dashed rgba(255,255,255,.10); border-radius: 18px; padding: 16px;
-      background: rgba(255,255,255,.02);
+    .btn.warn{background:linear-gradient(180deg,#f2c24c,#d59d18);color:#1b1400}
+    .btn.danger{background:linear-gradient(180deg,#ff8787,#e04d4d)}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+    .kpi{grid-column:span 3;padding:20px}
+    .kpi-label{color:var(--muted);font-size:13px;margin-bottom:8px}
+    .kpi-value{font-size:29px;font-weight:800}
+    .kpi-foot{margin-top:8px;font-size:13px;font-weight:700}
+    .panel{padding:20px}
+    .panel h3{margin:0 0 14px;font-size:19px}
+    .notes{color:var(--muted);line-height:1.65;font-size:13px}
+    .map-panel{grid-column:span 7}
+    .ops-panel{grid-column:span 5}
+    .chart-panel{grid-column:span 7}
+    .rank-panel{grid-column:span 5}
+    .full{grid-column:1/-1}
+    .quick-guide{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .mini-guide{
+      border:1px dashed rgba(255,255,255,.10);
+      border-radius:18px;padding:16px;background:rgba(255,255,255,.02)
     }
-    .mini-guide strong { display: block; margin-bottom: 6px; font-size: 15px; }
-    #paraguayMap { height: 560px; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); }
-    .leaflet-container { background: #dbe7f6; font-family: 'Inter', system-ui, sans-serif; }
-    .city-pin {
-      width: 18px; height: 18px; border-radius: 999px; border: 3px solid white;
-      box-shadow: 0 0 0 6px rgba(255,255,255,.18), 0 8px 16px rgba(0,0,0,.18);
+    .mini-guide strong{display:block;margin-bottom:6px;font-size:15px}
+    #paraguayMap{height:560px;border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+    .leaflet-container{background:#dbe7f6;font-family:'Inter',system-ui,sans-serif}
+    .city-pin{
+      width:18px;height:18px;border-radius:999px;border:3px solid white;
+      box-shadow:0 0 0 6px rgba(255,255,255,.18),0 8px 16px rgba(0,0,0,.18)
     }
-    .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 12px; color: var(--muted); font-size: 13px; }
-    .legend span { display: inline-flex; align-items: center; gap: 8px; }
-    .dot { width: 11px; height: 11px; border-radius: 999px; display: inline-block; }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    label { display: block; font-size: 13px; color: #cfe0ff; margin-bottom: 6px; font-weight: 600; }
-    input, select, textarea {
-      width: 100%; border-radius: 14px; border: 1px solid var(--line); background: #0d1730;
-      color: var(--text); padding: 12px 13px; font: inherit; outline: none;
+    .legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;color:var(--muted);font-size:13px}
+    .legend span{display:inline-flex;align-items:center;gap:8px}
+    .dot{width:11px;height:11px;border-radius:999px;display:inline-block}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    label{display:block;font-size:13px;color:#cfe0ff;margin-bottom:6px;font-weight:600}
+    input,select,textarea{
+      width:100%;border-radius:14px;border:1px solid var(--line);background:#0d1730;
+      color:var(--text);padding:12px 13px;font:inherit;outline:none;
     }
-    textarea { min-height: 140px; resize: vertical; }
-    .box {
-      margin-top: 14px; padding: 15px; border-radius: 18px;
-      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08);
+    textarea{min-height:100px;resize:vertical}
+    .box{
+      margin-top:14px;padding:15px;border-radius:18px;
+      background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)
     }
-    .toolbar {
-      display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr auto auto;
-      gap: 10px; margin-bottom: 14px; align-items: center;
+    .toolbar{
+      display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr auto auto;
+      gap:10px;margin-bottom:14px;align-items:center;
     }
-    .table-wrap { overflow: auto; border-radius: 18px; border: 1px solid var(--line); }
-    table { width: 100%; border-collapse: collapse; min-width: 760px; background: rgba(255,255,255,.015); }
-    th, td { padding: 12px 13px; border-bottom: 1px solid rgba(255,255,255,.06); text-align: left; font-size: 14px; }
-    th { position: sticky; top: 0; background: #132441; z-index: 1; }
-    .right { text-align: right; }
-    .up { color: var(--bad); }
-    .down { color: var(--good); }
-    .flat { color: var(--warn); }
-    .pill {
-      display: inline-block; padding: 5px 10px; border-radius: 999px; font-size: 12px; font-weight: 800;
+    .table-wrap{overflow:auto;border-radius:18px;border:1px solid var(--line)}
+    table{width:100%;border-collapse:collapse;min-width:900px;background:rgba(255,255,255,.015)}
+    th,td{padding:12px 13px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left;font-size:14px}
+    th{position:sticky;top:0;background:#132441;z-index:1}
+    .right{text-align:right}
+    .up{color:var(--bad)}
+    .down{color:var(--good)}
+    .flat{color:var(--warn)}
+    .pill{display:inline-block;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:800}
+    .pill-good{background:rgba(87,211,140,.12);color:#8ff0b4;border:1px solid rgba(87,211,140,.24)}
+    .pill-warn{background:rgba(242,194,76,.12);color:#ffd770;border:1px solid rgba(242,194,76,.22)}
+    .pill-bad{background:rgba(255,111,111,.12);color:#ffaaaa;border:1px solid rgba(255,111,111,.24)}
+    .status-list{display:grid;gap:10px}
+    .status-row{
+      display:grid;grid-template-columns:1fr auto;gap:10px;padding:12px 14px;
+      border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025)
     }
-    .pill-good { background: rgba(87,211,140,.12); color: #8ff0b4; border: 1px solid rgba(87,211,140,.24); }
-    .pill-warn { background: rgba(242,194,76,.12); color: #ffd770; border: 1px solid rgba(242,194,76,.22); }
-    .pill-bad { background: rgba(255,111,111,.12); color: #ffaaaa; border: 1px solid rgba(255,111,111,.24); }
-    .status-list { display: grid; gap: 10px; }
-    .status-row {
-      display: grid; grid-template-columns: 1fr auto; gap: 10px; padding: 12px 14px;
-      border-radius: 16px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.025);
+    .hidden{display:none}
+    .status-badge{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800}
+    .status-ok{background:rgba(87,211,140,.12);color:#8ff0b4}
+    .status-off{background:rgba(242,194,76,.12);color:#ffd770}
+    .status-bad{background:rgba(255,111,111,.12);color:#ffaaaa}
+    @media (max-width:1280px){
+      .topbar,.grid{grid-template-columns:1fr}
+      .kpi,.map-panel,.ops-panel,.chart-panel,.rank-panel{grid-column:span 12}
+      .toolbar{grid-template-columns:1fr 1fr}
+      .quick-guide{grid-template-columns:1fr}
     }
-    .hidden { display: none; }
-    @media (max-width: 1280px) {
-      .topbar, .grid { grid-template-columns: 1fr; }
-      .kpi, .map-panel, .ops-panel, .chart-panel, .rank-panel { grid-column: span 12; }
-      .toolbar { grid-template-columns: 1fr 1fr; }
-      .quick-guide { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 760px) {
-      .shell { padding: 14px; }
-      .form-grid, .toolbar { grid-template-columns: 1fr; }
-      h1 { font-size: 26px; }
-      #paraguayMap { height: 460px; }
+    @media (max-width:760px){
+      .shell{padding:14px}
+      .form-grid,.toolbar{grid-template-columns:1fr}
+      h1{font-size:26px}
+      #paraguayMap{height:460px}
     }
   </style>
 </head>
@@ -165,41 +166,51 @@
   <div class="shell">
     <section class="topbar">
       <div class="card hero">
-        <div class="eyebrow">Observatorio de Comercio y Servicios · Paraguay</div>
-        <h1>Observatorio de Precios Paraguay 4.0</h1>
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px;">
+          <img
+            src="Logo OMP.jpg"
+            alt="Logo Observatorio de Precios de Paraguay"
+            style="width:110px;height:110px;object-fit:contain;border-radius:16px;background:rgba(255,255,255,.06);padding:8px;border:1px solid rgba(255,255,255,.08);"
+            onerror="this.style.display='none'"
+          >
+          <div>
+            <div class="eyebrow">Viceministerio de Comercio y Servicios · Paraguay</div>
+            <h1>Observatorio de Precios Paraguay 5.1</h1>
+          </div>
+        </div>
+
         <p class="sub">
-          Panel ejecutivo con mapa real, monitoreo por ciudades, índice semanal automático,
-          ranking de productos, alertas de presión inflacionaria, resumen ejecutivo e informe semanal
-          automático listo para presentación institucional ante autoridades.
+          Panel ejecutivo de tomate con monitoreo de producción, mayorista, minorista y contexto SENAVE.
+          Permite carga manual, importación Excel y actualización automática desde CSV o JSON público.
         </p>
+
         <div class="hero-tags">
-          <span class="tag">Importación Excel .xlsx</span>
-          <span class="tag">Mapa real con Leaflet</span>
-          <span class="tag">Índice nacional y por ciudad</span>
-          <span class="tag">Ranking automático</span>
-          <span class="tag">Informe semanal 4.0</span>
-          <span class="tag">Base local o demo online</span>
+          <span class="tag">Tomate al día</span>
+          <span class="tag">Producción / Mayorista / Minorista</span>
+          <span class="tag">Fuente remota automática</span>
+          <span class="tag">Panel ministerial</span>
+          <span class="tag">Informe ejecutivo</span>
+          <span class="tag">GitHub Pages</span>
         </div>
       </div>
 
       <div class="card side">
         <div>
           <h2 class="side-title">Acciones rápidas</h2>
-          <p>Primero carga el demo o tu Excel. Luego genera el informe semanal automático para tener una lectura ejecutiva lista para presentar.</p>
+          <p>Primero prueba el demo. Luego puedes importar Excel o conectar una URL pública de CSV/JSON para actualizar el sistema sin cargar archivos a mano.</p>
         </div>
+
         <div class="actions">
           <button class="btn" onclick="seedDemoData()">Cargar demo</button>
-          <button class="btn secondary" onclick="generateWeeklyReport()">Informe semanal</button>
+          <button class="btn secondary" onclick="generateExecutiveReport()">Informe Viceministro</button>
+          <button class="btn secondary" onclick="refreshRemoteData()">Actualizar fuente remota</button>
+
           <label class="file-label secondary">
             Importar Excel
             <input id="importExcel" type="file" accept=".xlsx,.xls,.csv" class="hidden" onchange="importExcelFile(event)">
           </label>
+
           <button class="btn secondary" onclick="downloadData()">Exportar JSON</button>
-          <label class="file-label secondary">
-            Importar JSON
-            <input id="importJson" type="file" accept="application/json" class="hidden" onchange="importData(event)">
-          </label>
-          <button class="btn secondary" onclick="downloadCSV()">Exportar CSV</button>
           <button class="btn danger" onclick="resetAll()">Reiniciar</button>
         </div>
       </div>
@@ -207,24 +218,43 @@
 
     <section class="grid">
       <div class="card panel full">
-        <h3>Cómo dejarlo online correctamente</h3>
-        <div class="quick-guide">
-          <div class="mini-guide">
-            <strong>1. Guardar el archivo</strong>
-            <div class="notes">Guarda este contenido como <strong>index.html</strong> en una carpeta nueva. Usa <strong>UTF-8</strong> y <strong>Todos los archivos</strong>.</div>
+        <h3>Configuración de carga automática</h3>
+        <div class="form-grid">
+          <div>
+            <label>Modo de carga</label>
+            <select id="autoMode" onchange="saveAutoConfig()">
+              <option value="none">Desactivado</option>
+              <option value="csv">CSV remoto / Google Sheets publicado</option>
+              <option value="json">JSON remoto</option>
+            </select>
           </div>
-          <div class="mini-guide">
-            <strong>2. Probar localmente</strong>
-            <div class="notes">Haz doble clic en el archivo. Verifica el mapa real, el gráfico, el botón <strong>Cargar demo</strong> y el botón <strong>Informe semanal</strong>.</div>
+          <div>
+            <label>URL remota</label>
+            <input id="remoteUrl" type="text" placeholder="Pega aquí la URL pública del CSV o JSON" oninput="saveAutoConfig()">
           </div>
-          <div class="mini-guide">
-            <strong>3. Publicarlo online</strong>
-            <div class="notes">Sube el archivo a GitHub Pages, Netlify o Railway Static. Esta versión conserva la estructura robusta y suma una capa ejecutiva.</div>
+          <div>
+            <label>Auto refresh (minutos)</label>
+            <input id="refreshMinutes" type="number" min="0" step="1" placeholder="0 = desactivado" oninput="saveAutoConfig()">
+          </div>
+          <div>
+            <label>Notas fuente</label>
+            <input id="sourceNotes" type="text" placeholder="Ej. Google Sheets de relevadores / SENAVE contexto" oninput="saveAutoConfig()">
           </div>
         </div>
-        <div class="box" style="margin-top:14px;">
-          <strong style="display:block; margin-bottom:8px;">Formato recomendado para importar Excel</strong>
-          <div class="notes">Usa una hoja con estas columnas exactas: <strong>Semana</strong>, <strong>Ciudad</strong>, <strong>Producto</strong>, <strong>Precio</strong>. Ejemplo: <strong>2026-W12 | Asunción | Tomate | 13200</strong>.</div>
+
+        <div class="box">
+          <strong>Cómo usarlo bien</strong>
+          <div class="notes" style="margin-top:6px;">
+            La forma más estable es publicar una hoja en Google Sheets como CSV e importarla aquí.
+            Columnas recomendadas: <strong>fecha_hora</strong>, <strong>semana</strong>, <strong>ciudad</strong>, <strong>canal</strong>, <strong>producto</strong>, <strong>precio</strong>, <strong>fuente</strong>, <strong>volumen</strong>.
+          </div>
+        </div>
+
+        <div class="box">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <span id="remoteStatusBadge" class="status-badge status-off">Desactivado</span>
+            <span id="remoteStatusText" class="notes">Sin conexión remota configurada.</span>
+          </div>
         </div>
       </div>
 
@@ -232,55 +262,74 @@
         <h3>Resumen ejecutivo semanal</h3>
         <div class="quick-guide">
           <div class="mini-guide">
-            <strong>Inflación semanal observada</strong>
+            <strong>Presión semanal observada</strong>
             <div id="execInflation" class="notes">Sin datos.</div>
           </div>
           <div class="mini-guide">
-            <strong>Foco regional</strong>
+            <strong>Foco territorial</strong>
             <div id="execRegional" class="notes">Sin datos.</div>
           </div>
           <div class="mini-guide">
-            <strong>Productos que más presionan</strong>
+            <strong>Lectura de cadena</strong>
             <div id="execProducts" class="notes">Sin datos.</div>
           </div>
         </div>
       </div>
 
       <div class="card kpi">
-        <div class="kpi-label">Índice nacional semanal</div>
-        <div id="kpiIndex" class="kpi-value">100,0</div>
-        <div id="kpiIndexFoot" class="kpi-foot flat">Sin variación</div>
+        <div class="kpi-label">Tomate mayorista actual</div>
+        <div id="kpiWholesale" class="kpi-value">—</div>
+        <div id="kpiWholesaleFoot" class="kpi-foot flat">Sin datos</div>
       </div>
+
+      <div class="card kpi">
+        <div class="kpi-label">Tomate minorista actual</div>
+        <div id="kpiRetail" class="kpi-value">—</div>
+        <div id="kpiRetailFoot" class="kpi-foot flat">Sin datos</div>
+      </div>
+
+      <div class="card kpi">
+        <div class="kpi-label">Producción / finca</div>
+        <div id="kpiFarm" class="kpi-value">—</div>
+        <div id="kpiFarmFoot" class="kpi-foot flat">Sin datos</div>
+      </div>
+
+      <div class="card kpi">
+        <div class="kpi-label">Brecha retail vs finca</div>
+        <div id="kpiSpread" class="kpi-value">—</div>
+        <div id="kpiSpreadFoot" class="kpi-foot flat">Sin datos</div>
+      </div>
+
       <div class="card kpi">
         <div class="kpi-label">Ciudad con mayor presión</div>
         <div id="kpiCity" class="kpi-value">—</div>
         <div id="kpiCityFoot" class="kpi-foot flat">Sin datos</div>
       </div>
+
       <div class="card kpi">
-        <div class="kpi-label">Producto más volátil</div>
-        <div id="kpiProduct" class="kpi-value">—</div>
-        <div id="kpiProductFoot" class="kpi-foot flat">Sin datos</div>
-      </div>
-      <div class="card kpi">
-        <div class="kpi-label">Alertas activas</div>
-        <div id="kpiAlerts" class="kpi-value">0</div>
-        <div class="kpi-foot">Amarillas y rojas</div>
+        <div class="kpi-label">Alerta tomate</div>
+        <div id="kpiAlert" class="kpi-value">—</div>
+        <div id="kpiAlertFoot" class="kpi-foot flat">Sin datos</div>
       </div>
 
       <div class="card panel map-panel">
-        <h3>Mapa real de Paraguay y monitoreo por ciudades</h3>
+        <h3>Mapa de inflación del tomate por ciudad</h3>
         <div id="paraguayMap"></div>
         <div class="legend">
           <span><i class="dot" style="background:#57d38c"></i> Normal</span>
-          <span><i class="dot" style="background:#f2c24c"></i> Presión inflacionaria</span>
-          <span><i class="dot" style="background:#ff6f6f"></i> Aumento fuerte</span>
+          <span><i class="dot" style="background:#f2c24c"></i> Presión</span>
+          <span><i class="dot" style="background:#ff6f6f"></i> Fuerte</span>
         </div>
-        <div class="notes" style="margin-top:10px;">La clasificación del punto se calcula por la variación semanal promedio observada en cada ciudad.</div>
+        <div class="notes" style="margin-top:10px;">El color del punto muestra la variación semanal del tomate por ciudad, tomando la última observación disponible de cada ciudad.</div>
       </div>
 
       <div class="card panel ops-panel">
-        <h3>Carga de precios y operación</h3>
+        <h3>Carga de datos</h3>
         <div class="form-grid">
+          <div>
+            <label>Fecha y hora</label>
+            <input id="datetimeInput" type="datetime-local">
+          </div>
           <div>
             <label>Semana</label>
             <input id="weekInput" type="week">
@@ -290,6 +339,15 @@
             <select id="cityInput"></select>
           </div>
           <div>
+            <label>Canal</label>
+            <select id="channelInput">
+              <option>Mayorista</option>
+              <option>Minorista</option>
+              <option>Finca</option>
+              <option>SENAVE</option>
+            </select>
+          </div>
+          <div>
             <label>Producto</label>
             <select id="productInput"></select>
           </div>
@@ -297,17 +355,28 @@
             <label>Precio (Gs.)</label>
             <input id="priceInput" type="number" min="0" step="1" placeholder="Ej. 14500">
           </div>
+          <div>
+            <label>Fuente</label>
+            <input id="sourceInput" type="text" placeholder="Ej. Abasto / SENAVE / Supermercado">
+          </div>
+          <div>
+            <label>Volumen / referencia</label>
+            <input id="volumeInput" type="text" placeholder="Ej. caja 20 kg / kg / lote">
+          </div>
         </div>
+
         <div class="actions">
-          <button class="btn" onclick="savePrice()">Guardar precio</button>
+          <button class="btn" onclick="saveRecord()">Guardar registro</button>
           <button class="btn secondary" onclick="toggleBulk()">Carga rápida</button>
         </div>
 
         <div id="bulkBox" class="box hidden">
           <label>Pegado masivo</label>
-          <div class="notes" style="margin-bottom:8px;">Formato: ciudad | semana | producto | precio</div>
-          <textarea id="bulkText">Asunción | 2026-W11 | Tomate | 12500
-Lambaré | 2026-W11 | Tomate | 12100</textarea>
+          <div class="notes" style="margin-bottom:8px;">
+            Formato: fecha_hora | semana | ciudad | canal | producto | precio | fuente | volumen
+          </div>
+          <textarea id="bulkText">2026-03-19 08:00 | 2026-W12 | Asunción | Mayorista | Tomate | 5200 | Abasto | caja 20 kg
+2026-03-19 10:00 | 2026-W12 | Asunción | Minorista | Tomate | 16500 | Supermercado | kg</textarea>
           <div class="actions">
             <button class="btn" onclick="processBulkPaste()">Procesar</button>
             <button class="btn secondary" onclick="toggleBulk()">Cerrar</button>
@@ -315,44 +384,30 @@ Lambaré | 2026-W11 | Tomate | 12100</textarea>
         </div>
 
         <div class="box">
-          <strong style="display:block; margin-bottom:6px;">Metodología base del panel</strong>
+          <strong>Qué representa SENAVE aquí</strong>
           <div class="notes">
-            Índice semanal por ciudad = promedio actual / promedio de semana base × 100.<br>
-            Alerta amarilla: variación semanal ≥ 5%.<br>
-            Alerta roja: variación semanal ≥ 10%.
-          </div>
-        </div>
-
-        <div class="box">
-          <strong style="display:block; margin-bottom:8px;">Estado del sistema</strong>
-          <div class="status-list">
-            <div class="status-row"><span>Mapa real online</span><strong>Sí</strong></div>
-            <div class="status-row"><span>Panel ejecutivo</span><strong>Sí</strong></div>
-            <div class="status-row"><span>Informe semanal</span><strong>Sí</strong></div>
-            <div class="status-row"><span>Listo para GitHub Pages</span><strong>Sí</strong></div>
+            En este sistema, SENAVE funciona como <strong>fuente de contexto regulatorio</strong>:
+            importaciones, permisos, presión de oferta o cierre de ventanas. No como fuente horaria oficial de precios.
           </div>
         </div>
       </div>
 
       <div class="card panel chart-panel">
-        <div class="actions" style="margin-top:0;margin-bottom:10px;">
-          <button class="btn secondary" onclick="toggleChartMode()">Cambiar vista del gráfico</button>
-        </div>
-        <h3 id="chartTitle">Evolución del índice nacional</h3>
-        <canvas id="nationalChart" height="120"></canvas>
+        <h3>Tomate intradiario por canal</h3>
+        <canvas id="hourlyChart" height="120"></canvas>
       </div>
 
       <div class="card panel rank-panel">
-        <h3>Ranking de productos y presión inflacionaria</h3>
+        <h3>Últimos registros de tomate por canal</h3>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>#</th>
-                <th>Producto</th>
-                <th>Prom. actual</th>
-                <th>Prom. previo</th>
-                <th>Variación</th>
+                <th>Canal</th>
+                <th>Ciudad</th>
+                <th>Último precio</th>
+                <th>Fecha/hora</th>
+                <th>Fuente</th>
                 <th>Estado</th>
               </tr>
             </thead>
@@ -362,33 +417,45 @@ Lambaré | 2026-W11 | Tomate | 12100</textarea>
       </div>
 
       <div class="card panel full">
-        <h3>Informe semanal automático</h3>
+        <h3>Informe para el Viceministro</h3>
         <div class="box" style="margin-bottom:14px;">
-          <div id="weeklyReportBox" class="notes">Pulsa <strong>Informe semanal</strong> para generar un resumen automático listo para presentar.</div>
+          <div id="reportBox" class="notes" style="white-space:pre-line;">Pulsa “Informe Viceministro” para generar el texto ejecutivo.</div>
+        </div>
+        <div class="actions">
+          <button class="btn secondary" onclick="copyReport()">Copiar informe</button>
         </div>
       </div>
 
       <div class="card panel full">
         <div class="toolbar">
-          <input id="searchBox" placeholder="Buscar por ciudad, producto o semana..." oninput="renderPriceTable()">
+          <input id="searchBox" placeholder="Buscar por ciudad, canal, producto o fuente..." oninput="renderPriceTable()">
           <select id="filterCity" onchange="renderPriceTable()"></select>
+          <select id="filterChannel" onchange="renderPriceTable()">
+            <option value="">Todos los canales</option>
+            <option>Mayorista</option>
+            <option>Minorista</option>
+            <option>Finca</option>
+            <option>SENAVE</option>
+          </select>
           <select id="filterProduct" onchange="renderPriceTable()"></select>
-          <select id="filterWeek" onchange="renderPriceTable()"></select>
           <button class="btn secondary" onclick="downloadCSV()">Exportar CSV</button>
           <button class="btn warn" onclick="deleteCurrentSelection()">Eliminar selección</button>
         </div>
-        <h3>Base de precios semanales</h3>
+
+        <h3>Base de monitoreo</h3>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
                 <th></th>
+                <th>Fecha/hora</th>
                 <th>Semana</th>
                 <th>Ciudad</th>
+                <th>Canal</th>
                 <th>Producto</th>
-                <th class="right">Precio (Gs.)</th>
-                <th class="right">Variación</th>
-                <th>Estado</th>
+                <th class="right">Precio</th>
+                <th>Fuente</th>
+                <th>Volumen</th>
               </tr>
             </thead>
             <tbody id="priceBody"></tbody>
@@ -399,8 +466,8 @@ Lambaré | 2026-W11 | Tomate | 12100</textarea>
   </div>
 
   <script>
-    const STORAGE_KEY = 'observatorio_precios_py_v4';
-    const BASE_WEEK = '2026-W10';
+    const STORAGE_KEY = 'observatorio_precios_py_v51';
+    const CONFIG_KEY = 'observatorio_precios_py_v51_config';
 
     const CITY_META = {
       'Asunción': { lat: -25.2867, lng: -57.3333 },
@@ -416,13 +483,14 @@ Lambaré | 2026-W11 | Tomate | 12100</textarea>
       'Concepción': { lat: -23.4064, lng: -57.4344 }
     };
 
-    const DEFAULT_PRODUCTS = ['Tomate', 'Carne vacuna', 'Aceite', 'Arroz', 'Azúcar', 'Papa', 'Cebolla', 'Pollo', 'Huevos', 'Harina'];
+    const DEFAULT_PRODUCTS = ['Tomate', 'Carne vacuna', 'Aceite', 'Arroz', 'Papa', 'Cebolla', 'Pollo', 'Nafta', 'Diesel'];
 
     let state = loadState();
-    let nationalChart = null;
-    let chartMode = 'national';
+    let config = loadConfig();
     let map = null;
     let markersLayer = null;
+    let hourlyChart = null;
+    let autoTimer = null;
 
     function loadState() {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -438,8 +506,23 @@ Lambaré | 2026-W11 | Tomate | 12100</textarea>
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
 
+    function loadConfig() {
+      const raw = localStorage.getItem(CONFIG_KEY);
+      if (raw) return JSON.parse(raw);
+      return {
+        autoMode: 'none',
+        remoteUrl: '',
+        refreshMinutes: 0,
+        sourceNotes: ''
+      };
+    }
+
+    function saveConfigStorage() {
+      localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+    }
+
     function fmtGs(v) {
-      return Number(v || 0).toLocaleString('es-PY');
+      return v == null ? '—' : `Gs. ${Number(v).toLocaleString('es-PY')}`;
     }
 
     function fmtPct(v) {
@@ -447,18 +530,19 @@ Lambaré | 2026-W11 | Tomate | 12100</textarea>
       return `${v >= 0 ? '+' : ''}${v.toFixed(1).replace('.', ',')}%`;
     }
 
-    function sortWeek(w) {
+    function parseWeekSort(w) {
+      if (!w || !w.includes('-W')) return 0;
       const [y, n] = w.split('-W');
       return Number(y) * 100 + Number(n);
     }
 
     function getWeeks() {
-      return [...new Set(state.prices.map(p => p.week))].sort((a, b) => sortWeek(a) - sortWeek(b));
+      return [...new Set(state.prices.map(p => p.week))].sort((a, b) => parseWeekSort(a) - parseWeekSort(b));
     }
 
     function getLatestWeek() {
       const weeks = getWeeks();
-      return weeks.length ? weeks[weeks.length - 1] : BASE_WEEK;
+      return weeks.length ? weeks[weeks.length - 1] : '';
     }
 
     function getPreviousWeek(week) {
@@ -467,332 +551,82 @@ Lambaré | 2026-W11 | Tomate | 12100</textarea>
       return idx > 0 ? weeks[idx - 1] : null;
     }
 
-    function setDefaultWeek() {
-      const input = document.getElementById('weekInput');
-      input.value = getLatestWeek() || BASE_WEEK;
+    function getLatestTomatoRecords(channel = null) {
+      const rows = state.prices
+        .filter(r => normalizeText(r.product) === 'tomate')
+        .filter(r => !channel || r.channel === channel)
+        .sort((a, b) => (new Date(b.datetime || b.date_time || 0)) - (new Date(a.datetime || a.date_time || 0)));
+      return rows;
+    }
+
+    function getLatestTomatoByChannel(channel) {
+      return getLatestTomatoRecords(channel)[0] || null;
+    }
+
+    function normalizeText(v) {
+      return String(v || '').trim().toLowerCase();
     }
 
     function fillSelectors() {
       document.getElementById('cityInput').innerHTML = state.cities.map(c => `<option>${c}</option>`).join('');
       document.getElementById('productInput').innerHTML = state.products.map(p => `<option>${p}</option>`).join('');
-      document.getElementById('filterCity').innerHTML = `<option value="">Todas las ciudades</option>` + state.cities.map(c => `<option>${c}</option>`).join('');
-      document.getElementById('filterProduct').innerHTML = `<option value="">Todos los productos</option>` + state.products.map(p => `<option>${p}</option>`).join('');
-      document.getElementById('filterWeek').innerHTML = `<option value="">Todas las semanas</option>` + getWeeks().reverse().map(w => `<option>${w}</option>`).join('');
+
+      document.getElementById('filterCity').innerHTML =
+        `<option value="">Todas las ciudades</option>` +
+        state.cities.map(c => `<option>${c}</option>`).join('');
+
+      document.getElementById('filterProduct').innerHTML =
+        `<option value="">Todos los productos</option>` +
+        state.products.map(p => `<option>${p}</option>`).join('');
     }
 
-    function upsertPrice(entry) {
-      const idx = state.prices.findIndex(x => x.week === entry.week && x.city === entry.city && x.product === entry.product);
+    function setDefaultInputs() {
+      const week = getLatestWeek();
+      if (week) document.getElementById('weekInput').value = week;
+
+      const dt = new Date();
+      const offset = dt.getTimezoneOffset();
+      const local = new Date(dt.getTime() - offset * 60000).toISOString().slice(0,16);
+      if (!document.getElementById('datetimeInput').value) {
+        document.getElementById('datetimeInput').value = local;
+      }
+    }
+
+    function upsertRecord(entry) {
+      const idx = state.prices.findIndex(x =>
+        x.datetime === entry.datetime &&
+        x.week === entry.week &&
+        x.city === entry.city &&
+        x.channel === entry.channel &&
+        x.product === entry.product
+      );
       if (idx >= 0) state.prices[idx] = entry;
       else state.prices.push(entry);
     }
 
-    function savePrice() {
-      const week = document.getElementById('weekInput').value;
-      const city = document.getElementById('cityInput').value;
-      const product = document.getElementById('productInput').value;
-      const price = Number(document.getElementById('priceInput').value);
-      if (!week || !city || !product || !price) {
-        alert('Completa semana, ciudad, producto y precio.');
+    function saveRecord() {
+      const entry = {
+        datetime: document.getElementById('datetimeInput').value,
+        week: document.getElementById('weekInput').value,
+        city: document.getElementById('cityInput').value,
+        channel: document.getElementById('channelInput').value,
+        product: document.getElementById('productInput').value,
+        price: Number(document.getElementById('priceInput').value),
+        source: document.getElementById('sourceInput').value.trim(),
+        volume: document.getElementById('volumeInput').value.trim()
+      };
+
+      if (!entry.datetime || !entry.week || !entry.city || !entry.channel || !entry.product || !entry.price) {
+        alert('Completa fecha/hora, semana, ciudad, canal, producto y precio.');
         return;
       }
-      upsertPrice({ week, city, product, price });
+
+      if (!state.cities.includes(entry.city)) state.cities.push(entry.city);
+      if (!state.products.includes(entry.product)) state.products.push(entry.product);
+
+      upsertRecord(entry);
       saveState();
-      document.getElementById('priceInput').value = '';
       refreshAll();
-    }
-
-    function getAvgPrice(week, city = null, product = null) {
-      const rows = state.prices.filter(p => p.week === week && (!city || p.city === city) && (!product || p.product === product));
-      if (!rows.length) return null;
-      return rows.reduce((sum, row) => sum + Number(row.price), 0) / rows.length;
-    }
-
-    function getVariation(current, previous) {
-      if (current == null || previous == null || previous === 0) return null;
-      return ((current / previous) - 1) * 100;
-    }
-
-    function getCityVariation(city, week) {
-      const prev = getPreviousWeek(week);
-      return getVariation(getAvgPrice(week, city), prev ? getAvgPrice(prev, city) : null);
-    }
-
-    function getCityIndex(city, week) {
-      const base = getAvgPrice(BASE_WEEK, city);
-      const current = getAvgPrice(week, city);
-      if (base == null || current == null || base === 0) return null;
-      return current / base * 100;
-    }
-
-    function getAlertLevel(variation) {
-      if (variation == null) return { text: 'Sin base', className: 'pill-good', color: '#57d38c' };
-      if (variation >= 10) return { text: 'Alerta roja', className: 'pill-bad', color: '#ff6f6f' };
-      if (variation >= 5) return { text: 'Alerta amarilla', className: 'pill-warn', color: '#f2c24c' };
-      return { text: 'Normal', className: 'pill-good', color: '#57d38c' };
-    }
-
-    function getNationalSeries() {
-      const base = getAvgPrice(BASE_WEEK);
-      return getWeeks().map(week => {
-        const current = getAvgPrice(week);
-        const index = current != null && base ? current / base * 100 : null;
-        return { week, index };
-      }).filter(x => x.index != null);
-    }
-
-    function getProductRanking() {
-      const latest = getLatestWeek();
-      const prev = getPreviousWeek(latest);
-      return state.products.map(product => {
-        const current = getAvgPrice(latest, null, product);
-        const previous = prev ? getAvgPrice(prev, null, product) : null;
-        const variation = getVariation(current, previous);
-        return { product, current, previous, variation };
-      }).filter(x => x.current != null)
-        .sort((a, b) => (b.variation ?? -999) - (a.variation ?? -999));
-    }
-
-    function updateKPIs() {
-      const latest = getLatestWeek();
-      const prev = getPreviousWeek(latest);
-      const base = getAvgPrice(BASE_WEEK);
-      const current = getAvgPrice(latest);
-      const nationalIndex = current != null && base ? current / base * 100 : 100;
-      const nationalVariation = getVariation(current, prev ? getAvgPrice(prev) : null);
-      document.getElementById('kpiIndex').textContent = nationalIndex.toFixed(1).replace('.', ',');
-      const a = document.getElementById('kpiIndexFoot');
-      a.textContent = nationalVariation == null ? 'Sin variación' : `Variación semanal ${fmtPct(nationalVariation)}`;
-      a.className = `kpi-foot ${nationalVariation > 0 ? 'up' : nationalVariation < 0 ? 'down' : 'flat'}`;
-
-      const cities = state.cities.map(city => ({ city, variation: getCityVariation(city, latest), index: getCityIndex(city, latest) }))
-        .filter(x => x.variation != null)
-        .sort((a, b) => b.variation - a.variation);
-      const topCity = cities[0];
-      document.getElementById('kpiCity').textContent = topCity ? topCity.city : '—';
-      const b = document.getElementById('kpiCityFoot');
-      b.textContent = topCity ? `${fmtPct(topCity.variation)} | Índice ${topCity.index.toFixed(1).replace('.', ',')}` : 'Sin datos';
-      b.className = `kpi-foot ${topCity && topCity.variation > 0 ? 'up' : 'flat'}`;
-
-      const ranking = getProductRanking();
-      const topProduct = ranking[0];
-      document.getElementById('kpiProduct').textContent = topProduct ? topProduct.product : '—';
-      const c = document.getElementById('kpiProductFoot');
-      c.textContent = topProduct && topProduct.variation != null ? fmtPct(topProduct.variation) : 'Sin datos';
-      c.className = `kpi-foot ${topProduct && topProduct.variation > 0 ? 'up' : 'flat'}`;
-
-      document.getElementById('kpiAlerts').textContent = ranking.filter(r => (r.variation ?? 0) >= 5).length;
-    }
-
-    function updateExecutiveSummary() {
-      const latest = getLatestWeek();
-      const prev = getPreviousWeek(latest);
-      const nationalVar = getVariation(getAvgPrice(latest), prev ? getAvgPrice(prev) : null);
-      const cities = state.cities.map(city => ({ city, variation: getCityVariation(city, latest) }))
-        .filter(x => x.variation != null)
-        .sort((a, b) => b.variation - a.variation);
-      const ranking = getProductRanking().slice(0, 3);
-
-      document.getElementById('execInflation').textContent = nationalVar == null
-        ? 'Todavía no hay suficientes semanas para calcular variación nacional.'
-        : `La variación nacional semanal observada es ${fmtPct(nationalVar)} respecto a la semana previa.`;
-
-      document.getElementById('execRegional').textContent = cities.length
-        ? `${cities[0].city} lidera la presión semanal con ${fmtPct(cities[0].variation)}.`
-        : 'Sin datos regionales aún.';
-
-      document.getElementById('execProducts').textContent = ranking.length
-        ? ranking.map(r => `${r.product} ${fmtPct(r.variation)}`).join(' · ')
-        : 'Sin datos de productos aún.';
-    }
-
-    function initMap() {
-      if (map) return;
-      map = L.map('paraguayMap', { zoomControl: true, attributionControl: true }).setView([-23.3, -58.2], 6);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: '&copy; OpenStreetMap'
-      }).addTo(map);
-      markersLayer = L.layerGroup().addTo(map);
-    }
-
-    function renderMap() {
-      initMap();
-      markersLayer.clearLayers();
-      const latest = getLatestWeek();
-      state.cities.forEach(city => {
-        const meta = CITY_META[city];
-        if (!meta) return;
-        const variation = getCityVariation(city, latest);
-        const index = getCityIndex(city, latest);
-        const alert = getAlertLevel(variation);
-        const icon = L.divIcon({
-          className: '',
-          html: `<div class="city-pin" style="background:${alert.color}"></div>`,
-          iconSize: [18, 18],
-          iconAnchor: [9, 9]
-        });
-        const marker = L.marker([meta.lat, meta.lng], { icon }).addTo(markersLayer);
-        marker.bindPopup(`
-          <div style="font-family:Inter,sans-serif; min-width:180px; color:#10203b;">
-            <strong style="font-size:14px;">${city}</strong><br>
-            Índice: ${index != null ? index.toFixed(1).replace('.', ',') : '—'}<br>
-            Variación semanal: ${variation != null ? fmtPct(variation) : '—'}<br>
-            Estado: ${alert.text}
-          </div>
-        `);
-      });
-    }
-
-    function chartBaseOptions() {
-      return {
-        responsive: true,
-        plugins: { legend: { labels: { color: '#dbe8ff' } } },
-        scales: {
-          x: { ticks: { color: '#9db0d3' }, grid: { color: 'rgba(255,255,255,.07)' } },
-          y: { ticks: { color: '#9db0d3' }, grid: { color: 'rgba(255,255,255,.07)' } }
-        }
-      };
-    }
-
-    function renderChart() {
-      const ctx = document.getElementById('nationalChart');
-      if (nationalChart) nationalChart.destroy();
-      if (chartMode === 'national') {
-        const series = getNationalSeries();
-        document.getElementById('chartTitle').textContent = 'Evolución del índice nacional';
-        nationalChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: series.map(s => s.week),
-            datasets: [{
-              label: 'Índice nacional',
-              data: series.map(s => Number(s.index.toFixed(2))),
-              borderColor: '#4b93ff',
-              backgroundColor: 'rgba(75,147,255,.14)',
-              fill: true,
-              tension: .28,
-              pointRadius: 4,
-              pointBackgroundColor: '#69d3ff'
-            }]
-          },
-          options: chartBaseOptions()
-        });
-      } else {
-        const latest = getLatestWeek();
-        const cities = state.cities.map(city => ({ city, variation: getCityVariation(city, latest) }))
-          .filter(x => x.variation != null)
-          .sort((a, b) => b.variation - a.variation);
-        document.getElementById('chartTitle').textContent = 'Variación semanal por ciudad';
-        nationalChart = new Chart(ctx, {
-          type: 'bar',
-          data: {
-            labels: cities.map(c => c.city),
-            datasets: [{
-              label: 'Variación semanal por ciudad (%)',
-              data: cities.map(c => Number(c.variation.toFixed(2))),
-              backgroundColor: cities.map(c => c.variation >= 10 ? 'rgba(255,111,111,.7)' : c.variation >= 5 ? 'rgba(242,194,76,.7)' : 'rgba(87,211,140,.7)'),
-              borderColor: cities.map(c => c.variation >= 10 ? '#ff6f6f' : c.variation >= 5 ? '#f2c24c' : '#57d38c'),
-              borderWidth: 1
-            }]
-          },
-          options: chartBaseOptions()
-        });
-      }
-    }
-
-    function toggleChartMode() {
-      chartMode = chartMode === 'national' ? 'cities' : 'national';
-      renderChart();
-    }
-
-    function renderRanking() {
-      const body = document.getElementById('rankingBody');
-      const ranking = getProductRanking();
-      body.innerHTML = ranking.map((r, i) => {
-        const level = getAlertLevel(r.variation);
-        return `
-          <tr>
-            <td>${i + 1}</td>
-            <td>${r.product}</td>
-            <td>${r.current != null ? fmtGs(r.current) : '—'}</td>
-            <td>${r.previous != null ? fmtGs(r.previous) : '—'}</td>
-            <td class="${(r.variation ?? 0) > 0 ? 'up' : 'flat'}">${fmtPct(r.variation)}</td>
-            <td><span class="pill ${level.className}">${level.text}</span></td>
-          </tr>
-        `;
-      }).join('') || `<tr><td colspan="6">Sin datos aún.</td></tr>`;
-    }
-
-    function renderPriceTable() {
-      const q = document.getElementById('searchBox').value.toLowerCase().trim();
-      const city = document.getElementById('filterCity').value;
-      const product = document.getElementById('filterProduct').value;
-      const week = document.getElementById('filterWeek').value;
-      const rows = [...state.prices]
-        .sort((a, b) => sortWeek(b.week) - sortWeek(a.week) || a.city.localeCompare(b.city) || a.product.localeCompare(b.product))
-        .filter(r => !city || r.city === city)
-        .filter(r => !product || r.product === product)
-        .filter(r => !week || r.week === week)
-        .filter(r => !q || `${r.city} ${r.product} ${r.week}`.toLowerCase().includes(q));
-      document.getElementById('priceBody').innerHTML = rows.map((r) => {
-        const prevWeek = getPreviousWeek(r.week);
-        const prevPrice = prevWeek ? state.prices.find(x => x.week === prevWeek && x.city === r.city && x.product === r.product)?.price : null;
-        const variation = getVariation(r.price, prevPrice);
-        const level = getAlertLevel(variation);
-        return `
-          <tr>
-            <td><input type="checkbox" data-key="${encodeURIComponent(JSON.stringify(r))}"></td>
-            <td>${r.week}</td>
-            <td>${r.city}</td>
-            <td>${r.product}</td>
-            <td class="right">${fmtGs(r.price)}</td>
-            <td class="right ${(variation ?? 0) > 0 ? 'up' : 'flat'}">${fmtPct(variation)}</td>
-            <td><span class="pill ${level.className}">${level.text}</span></td>
-          </tr>
-        `;
-      }).join('') || `<tr><td colspan="7">No se encontraron registros.</td></tr>`;
-    }
-
-    function generateWeeklyReport(showAlert = true) {
-      const latest = getLatestWeek();
-      const prev = getPreviousWeek(latest);
-      const nationalVar = getVariation(getAvgPrice(latest), prev ? getAvgPrice(prev) : null);
-      const topCities = state.cities.map(city => ({ city, variation: getCityVariation(city, latest) }))
-        .filter(x => x.variation != null)
-        .sort((a, b) => b.variation - a.variation)
-        .slice(0, 3);
-      const topProducts = getProductRanking().slice(0, 5);
-
-      let html = `<strong>Semana analizada:</strong> ${latest}<br>`;
-      html += `<strong>Variación nacional:</strong> ${nationalVar == null ? 'Sin base comparativa' : fmtPct(nationalVar)}<br><br>`;
-      html += `<strong>Ciudades con mayor presión:</strong><br>`;
-      html += topCities.length ? topCities.map((c, i) => `${i + 1}. ${c.city} — ${fmtPct(c.variation)}`).join('<br>') : 'Sin datos.<br>';
-      html += `<br><br><strong>Productos con mayor incidencia:</strong><br>`;
-      html += topProducts.length ? topProducts.map((p, i) => `${i + 1}. ${p.product} — ${fmtPct(p.variation)}`).join('<br>') : 'Sin datos.<br>';
-      html += `<br><br><strong>Lectura ejecutiva:</strong><br>`;
-      if (nationalVar == null) {
-        html += 'Aún no existe suficiente historial para una lectura semanal consolidada.';
-      } else if (nationalVar >= 5) {
-        html += 'Se observa una presión importante en la canasta monitoreada. Conviene reforzar seguimiento sobre productos frescos, proteínas y ciudades con mayor tensión.';
-      } else if (nationalVar > 0) {
-        html += 'Se observa una suba moderada. El sistema sugiere monitoreo preventivo y validación de focos regionales.';
-      } else {
-        html += 'No se observa una presión inflacionaria relevante en la semana analizada.';
-      }
-      document.getElementById('weeklyReportBox').innerHTML = html;
-      if (showAlert) alert('Informe semanal generado dentro del panel.');
-    }
-
-    function refreshAll() {
-      fillSelectors();
-      setDefaultWeek();
-      updateKPIs();
-      updateExecutiveSummary();
-      renderMap();
-      renderChart();
-      renderRanking();
-      renderPriceTable();
-      generateWeeklyReport(false);
     }
 
     function toggleBulk() {
@@ -802,33 +636,376 @@ Lambaré | 2026-W11 | Tomate | 12100</textarea>
     function processBulkPaste() {
       const text = document.getElementById('bulkText').value.trim();
       if (!text) return;
+
       let ok = 0;
-      text.split(/
-?
-/).forEach(line => {
+      text.split(/\r?\n/).forEach(line => {
         const parts = line.split('|').map(x => x.trim());
-        if (parts.length !== 4) return;
-        const [city, week, product, priceText] = parts;
-        const price = Number(priceText.replace(/\./g, '').replace(',', '.'));
-        if (!city || !week || !product || !price) return;
+        if (parts.length < 6) return;
+
+        const [datetime, week, city, channel, product, priceText, source = '', volume = ''] = parts;
+        const price = Number(String(priceText).replace(/\./g, '').replace(',', '.'));
+        if (!datetime || !week || !city || !channel || !product || !price) return;
+
         if (!state.cities.includes(city)) state.cities.push(city);
         if (!state.products.includes(product)) state.products.push(product);
-        upsertPrice({ city, week, product, price });
+
+        upsertRecord({ datetime, week, city, channel, product, price, source, volume });
         ok++;
       });
+
       saveState();
       refreshAll();
       alert(`Registros procesados: ${ok}`);
     }
 
+    function getWeeklyAvgTomato(channel, week, city = null) {
+      const rows = state.prices
+        .filter(r => normalizeText(r.product) === 'tomate')
+        .filter(r => r.channel === channel)
+        .filter(r => r.week === week)
+        .filter(r => !city || r.city === city);
+      if (!rows.length) return null;
+      return rows.reduce((s, r) => s + Number(r.price), 0) / rows.length;
+    }
+
+    function getVariation(current, previous) {
+      if (current == null || previous == null || previous === 0) return null;
+      return ((current / previous) - 1) * 100;
+    }
+
+    function getAlertLevel(variation) {
+      if (variation == null) return { text: 'Sin base', className: 'pill-good', color: '#57d38c' };
+      if (variation >= 10) return { text: 'Alerta roja', className: 'pill-bad', color: '#ff6f6f' };
+      if (variation >= 5) return { text: 'Alerta amarilla', className: 'pill-warn', color: '#f2c24c' };
+      return { text: 'Normal', className: 'pill-good', color: '#57d38c' };
+    }
+
+    function updateKPIs() {
+      const latestWeek = getLatestWeek();
+      const prevWeek = getPreviousWeek(latestWeek);
+
+      const wholesale = getWeeklyAvgTomato('Mayorista', latestWeek);
+      const wholesalePrev = prevWeek ? getWeeklyAvgTomato('Mayorista', prevWeek) : null;
+
+      const retail = getWeeklyAvgTomato('Minorista', latestWeek);
+      const retailPrev = prevWeek ? getWeeklyAvgTomato('Minorista', prevWeek) : null;
+
+      const farm = getWeeklyAvgTomato('Finca', latestWeek);
+      const farmPrev = prevWeek ? getWeeklyAvgTomato('Finca', prevWeek) : null;
+
+      const wholesaleVar = getVariation(wholesale, wholesalePrev);
+      const retailVar = getVariation(retail, retailPrev);
+      const farmVar = getVariation(farm, farmPrev);
+
+      document.getElementById('kpiWholesale').textContent = wholesale != null ? Math.round(wholesale).toLocaleString('es-PY') : '—';
+      document.getElementById('kpiWholesaleFoot').textContent = wholesaleVar != null ? fmtPct(wholesaleVar) : 'Sin datos';
+      document.getElementById('kpiWholesaleFoot').className = `kpi-foot ${wholesaleVar > 0 ? 'up' : wholesaleVar < 0 ? 'down' : 'flat'}`;
+
+      document.getElementById('kpiRetail').textContent = retail != null ? Math.round(retail).toLocaleString('es-PY') : '—';
+      document.getElementById('kpiRetailFoot').textContent = retailVar != null ? fmtPct(retailVar) : 'Sin datos';
+      document.getElementById('kpiRetailFoot').className = `kpi-foot ${retailVar > 0 ? 'up' : retailVar < 0 ? 'down' : 'flat'}`;
+
+      document.getElementById('kpiFarm').textContent = farm != null ? Math.round(farm).toLocaleString('es-PY') : '—';
+      document.getElementById('kpiFarmFoot').textContent = farmVar != null ? fmtPct(farmVar) : 'Sin datos';
+      document.getElementById('kpiFarmFoot').className = `kpi-foot ${farmVar > 0 ? 'up' : farmVar < 0 ? 'down' : 'flat'}`;
+
+      const spread = retail != null && farm != null ? ((retail / farm) - 1) * 100 : null;
+      document.getElementById('kpiSpread').textContent = spread != null ? `${Math.round(spread)}%` : '—';
+      document.getElementById('kpiSpreadFoot').textContent = (retail != null && farm != null) ? `${fmtGs(retail)} vs ${fmtGs(farm)}` : 'Sin datos';
+      document.getElementById('kpiSpreadFoot').className = 'kpi-foot flat';
+
+      const cityRows = state.cities.map(city => {
+        const current = getWeeklyAvgTomato('Mayorista', latestWeek, city);
+        const previous = prevWeek ? getWeeklyAvgTomato('Mayorista', prevWeek, city) : null;
+        return {
+          city,
+          current,
+          variation: getVariation(current, previous)
+        };
+      }).filter(x => x.current != null);
+
+      cityRows.sort((a,b) => (b.variation ?? -999) - (a.variation ?? -999));
+      const topCity = cityRows[0];
+      document.getElementById('kpiCity').textContent = topCity ? topCity.city : '—';
+      document.getElementById('kpiCityFoot').textContent = topCity ? fmtPct(topCity.variation) : 'Sin datos';
+      document.getElementById('kpiCityFoot').className = `kpi-foot ${topCity && topCity.variation > 0 ? 'up' : 'flat'}`;
+
+      const refVariation = wholesaleVar ?? retailVar ?? farmVar;
+      const alert = getAlertLevel(refVariation);
+      document.getElementById('kpiAlert').textContent = alert.text.replace('Alerta ', '');
+      document.getElementById('kpiAlertFoot').textContent = refVariation != null ? fmtPct(refVariation) : 'Sin datos';
+      document.getElementById('kpiAlertFoot').className = `kpi-foot ${refVariation > 0 ? 'up' : 'flat'}`;
+    }
+
+    function updateExecutiveSummary() {
+      const latestWeek = getLatestWeek();
+      const prevWeek = getPreviousWeek(latestWeek);
+      const wholesale = getWeeklyAvgTomato('Mayorista', latestWeek);
+      const wholesalePrev = prevWeek ? getWeeklyAvgTomato('Mayorista', prevWeek) : null;
+      const retail = getWeeklyAvgTomato('Minorista', latestWeek);
+      const farm = getWeeklyAvgTomato('Finca', latestWeek);
+
+      const wholesaleVar = getVariation(wholesale, wholesalePrev);
+      document.getElementById('execInflation').textContent =
+        wholesaleVar == null
+          ? 'Todavía no hay suficiente base comparativa semanal.'
+          : `El tomate mayorista registra una variación semanal de ${fmtPct(wholesaleVar)}.`;
+
+      const cityRows = state.cities.map(city => {
+        const current = getWeeklyAvgTomato('Mayorista', latestWeek, city);
+        const previous = prevWeek ? getWeeklyAvgTomato('Mayorista', prevWeek, city) : null;
+        return { city, variation: getVariation(current, previous) };
+      }).filter(x => x.variation != null).sort((a,b)=>b.variation-a.variation);
+
+      document.getElementById('execRegional').textContent =
+        cityRows.length
+          ? `${cityRows[0].city} lidera la presión semanal del tomate con ${fmtPct(cityRows[0].variation)}.`
+          : 'Sin datos territoriales suficientes.';
+
+      const spread = retail != null && farm != null ? ((retail / farm) - 1) * 100 : null;
+      document.getElementById('execProducts').textContent =
+        spread != null
+          ? `La brecha entre finca y minorista se ubica en ${Math.round(spread)}%, lo que sugiere tensión relevante en la cadena.`
+          : 'Sin datos suficientes para medir la brecha de cadena.';
+    }
+
+    function initMap() {
+      if (map) return;
+      map = L.map('paraguayMap', { zoomControl:true, attributionControl:true }).setView([-23.3, -58.2], 6);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom:18,
+        attribution:'&copy; OpenStreetMap'
+      }).addTo(map);
+      markersLayer = L.layerGroup().addTo(map);
+    }
+
+    function renderMap() {
+      if (!markersLayer) return;
+      markersLayer.clearLayers();
+
+      const latestWeek = getLatestWeek();
+      const prevWeek = getPreviousWeek(latestWeek);
+
+      state.cities.forEach(city => {
+        const meta = CITY_META[city];
+        if (!meta) return;
+
+        const current = getWeeklyAvgTomato('Mayorista', latestWeek, city);
+        if (current == null) return;
+
+        const previous = prevWeek ? getWeeklyAvgTomato('Mayorista', prevWeek, city) : null;
+        const variation = getVariation(current, previous);
+        const alert = getAlertLevel(variation);
+
+        const icon = L.divIcon({
+          className: '',
+          html: `<div class="city-pin" style="background:${alert.color}"></div>`,
+          iconSize: [18,18],
+          iconAnchor: [9,9]
+        });
+
+        const marker = L.marker([meta.lat, meta.lng], { icon }).addTo(markersLayer);
+        marker.bindPopup(`
+          <div style="font-family:Inter,sans-serif; min-width:190px; color:#10203b;">
+            <strong style="font-size:14px;">${city}</strong><br>
+            Tomate mayorista: ${fmtGs(Math.round(current))}<br>
+            Variación semanal: ${fmtPct(variation)}<br>
+            Estado: ${alert.text}
+          </div>
+        `);
+      });
+
+      setTimeout(() => map.invalidateSize(), 50);
+    }
+
+    function renderHourlyChart() {
+      const rows = getLatestTomatoRecords()
+        .filter(r => r.datetime)
+        .sort((a,b) => new Date(a.datetime) - new Date(b.datetime))
+        .slice(-36);
+
+      const labels = rows.map(r => {
+        const d = new Date(r.datetime);
+        const hh = String(d.getHours()).padStart(2,'0');
+        const mm = String(d.getMinutes()).padStart(2,'0');
+        return `${hh}:${mm}`;
+      });
+
+      const channels = ['Mayorista', 'Minorista', 'Finca'];
+      const datasets = channels.map(channel => {
+        const data = rows.map(r => r.channel === channel ? Number(r.price) : null);
+        return {
+          label: channel,
+          data,
+          tension: 0.25,
+          borderWidth: 2,
+          fill: false
+        };
+      });
+
+      const canvas = document.getElementById('hourlyChart');
+      const ctx = canvas.getContext('2d');
+      if (hourlyChart) hourlyChart.destroy();
+
+      hourlyChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true,
+          plugins: { legend: { labels: { color: '#dbe8ff' } } },
+          scales: {
+            x: { ticks: { color: '#9db0d3' }, grid: { color: 'rgba(255,255,255,.07)' } },
+            y: { ticks: { color: '#9db0d3' }, grid: { color: 'rgba(255,255,255,.07)' } }
+          }
+        }
+      });
+    }
+
+    function renderRanking() {
+      const body = document.getElementById('rankingBody');
+      const rows = ['Mayorista','Minorista','Finca','SENAVE'].map(channel => {
+        const latest = getLatestTomatoByChannel(channel);
+        return latest;
+      }).filter(Boolean);
+
+      body.innerHTML = rows.map(r => {
+        const latestWeek = getLatestWeek();
+        const prevWeek = getPreviousWeek(latestWeek);
+        const current = getWeeklyAvgTomato(r.channel, latestWeek, r.city);
+        const previous = prevWeek ? getWeeklyAvgTomato(r.channel, prevWeek, r.city) : null;
+        const variation = getVariation(current, previous);
+        const level = getAlertLevel(variation);
+        return `
+          <tr>
+            <td>${r.channel}</td>
+            <td>${r.city}</td>
+            <td>${fmtGs(r.price)}</td>
+            <td>${r.datetime || '—'}</td>
+            <td>${r.source || '—'}</td>
+            <td><span class="pill ${level.className}">${level.text}</span></td>
+          </tr>
+        `;
+      }).join('') || `<tr><td colspan="6">Sin datos aún.</td></tr>`;
+    }
+
+    function renderPriceTable() {
+      const q = document.getElementById('searchBox').value.toLowerCase().trim();
+      const city = document.getElementById('filterCity').value;
+      const channel = document.getElementById('filterChannel').value;
+      const product = document.getElementById('filterProduct').value;
+
+      const rows = [...state.prices]
+        .sort((a,b) => new Date(b.datetime || 0) - new Date(a.datetime || 0))
+        .filter(r => !city || r.city === city)
+        .filter(r => !channel || r.channel === channel)
+        .filter(r => !product || r.product === product)
+        .filter(r => !q || `${r.city} ${r.channel} ${r.product} ${r.source} ${r.week}`.toLowerCase().includes(q));
+
+      document.getElementById('priceBody').innerHTML = rows.map(r => `
+        <tr>
+          <td><input type="checkbox" data-key="${encodeURIComponent(JSON.stringify(r))}"></td>
+          <td>${r.datetime || '—'}</td>
+          <td>${r.week || '—'}</td>
+          <td>${r.city || '—'}</td>
+          <td>${r.channel || '—'}</td>
+          <td>${r.product || '—'}</td>
+          <td class="right">${fmtGs(r.price)}</td>
+          <td>${r.source || '—'}</td>
+          <td>${r.volume || '—'}</td>
+        </tr>
+      `).join('') || `<tr><td colspan="9">No se encontraron registros.</td></tr>`;
+    }
+
+    function generateExecutiveReport() {
+      const latestWeek = getLatestWeek();
+      const prevWeek = getPreviousWeek(latestWeek);
+
+      if (!latestWeek) {
+        document.getElementById('reportBox').innerText = 'Sin datos disponibles.';
+        return;
+      }
+
+      const wholesale = getWeeklyAvgTomato('Mayorista', latestWeek);
+      const wholesalePrev = prevWeek ? getWeeklyAvgTomato('Mayorista', prevWeek) : null;
+      const retail = getWeeklyAvgTomato('Minorista', latestWeek);
+      const farm = getWeeklyAvgTomato('Finca', latestWeek);
+      const senave = getWeeklyAvgTomato('SENAVE', latestWeek);
+
+      const wholesaleVar = getVariation(wholesale, wholesalePrev);
+      const spread = retail != null && farm != null ? ((retail / farm) - 1) * 100 : null;
+
+      const cityRows = state.cities.map(city => {
+        const current = getWeeklyAvgTomato('Mayorista', latestWeek, city);
+        const previous = prevWeek ? getWeeklyAvgTomato('Mayorista', prevWeek, city) : null;
+        return { city, current, variation: getVariation(current, previous) };
+      }).filter(x => x.current != null).sort((a,b) => (b.variation ?? -999) - (a.variation ?? -999));
+
+      const topCity = cityRows[0];
+      const alert = getAlertLevel(wholesaleVar);
+
+      const text = `
+📊 INFORME EJECUTIVO DE TOMATE – PARAGUAY
+Semana: ${latestWeek}
+
+1. Precio mayorista
+${wholesale != null ? fmtGs(Math.round(wholesale)) : 'Sin datos'}
+${wholesaleVar != null ? `Variación semanal: ${fmtPct(wholesaleVar)}.` : 'Sin base comparativa previa.'}
+
+2. Precio minorista
+${retail != null ? fmtGs(Math.round(retail)) : 'Sin datos'}
+
+3. Precio en producción / finca
+${farm != null ? fmtGs(Math.round(farm)) : 'Sin datos'}
+
+4. Brecha de cadena
+${spread != null ? `La brecha entre finca y canal minorista se ubica en ${Math.round(spread)}%.` : 'Sin datos suficientes para medir brecha.'}
+
+5. Foco territorial
+${topCity ? `La mayor presión semanal se observa en ${topCity.city} con variación de ${fmtPct(topCity.variation)}.` : 'Sin datos territoriales suficientes.'}
+
+6. Referencia SENAVE
+${senave != null ? `Se registró una referencia cargada bajo canal SENAVE por ${fmtGs(Math.round(senave))}.` : 'Sin referencia SENAVE cargada esta semana.'}
+
+7. Nivel de alerta
+${alert.text}.
+
+8. Recomendación
+Se recomienda reforzar el monitoreo del tomate en canales mayorista y minorista, contrastar la brecha con precios de finca y mantener seguimiento regulatorio e importador como contexto de oferta.
+
+---
+Generado automáticamente por el Observatorio de Precios – Paraguay
+`.trim();
+
+      document.getElementById('reportBox').innerText = text;
+    }
+
+    function copyReport() {
+      const text = document.getElementById('reportBox').innerText;
+      navigator.clipboard.writeText(text)
+        .then(() => alert('Informe copiado'))
+        .catch(() => alert('No se pudo copiar automáticamente.'));
+    }
+
     function deleteCurrentSelection() {
       const selected = [...document.querySelectorAll('#priceBody input[type="checkbox"]:checked')]
         .map(x => JSON.parse(decodeURIComponent(x.dataset.key)));
+
       if (!selected.length) {
         alert('Selecciona al menos un registro.');
         return;
       }
-      state.prices = state.prices.filter(p => !selected.some(s => s.week === p.week && s.city === p.city && s.product === p.product && Number(s.price) === Number(p.price)));
+
+      state.prices = state.prices.filter(
+        p => !selected.some(
+          s => s.datetime === p.datetime &&
+               s.week === p.week &&
+               s.city === p.city &&
+               s.channel === p.channel &&
+               s.product === p.product &&
+               Number(s.price) === Number(p.price)
+        )
+      );
+
       saveState();
       refreshAll();
     }
@@ -837,77 +1014,187 @@ Lambaré | 2026-W11 | Tomate | 12100</textarea>
       const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'observatorio_precios_paraguay_v4.json';
+      a.download = 'observatorio_precios_paraguay_v51.json';
       a.click();
     }
 
     function downloadCSV() {
-      const rows = [['Semana', 'Ciudad', 'Producto', 'Precio']].concat(state.prices.map(p => [p.week, p.city, p.product, p.price]));
-      const csv = rows.map(r => r.join(';')).join('
-');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const rows = [
+        ['fecha_hora','semana','ciudad','canal','producto','precio','fuente','volumen']
+      ].concat(
+        state.prices.map(p => [
+          p.datetime || '',
+          p.week || '',
+          p.city || '',
+          p.channel || '',
+          p.product || '',
+          p.price || '',
+          p.source || '',
+          p.volume || ''
+        ])
+      );
+
+      const csv = rows.map(r => r.join(';')).join('\n');
+      const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = 'base_precios_semanales.csv';
+      a.download = 'base_monitoreo_tomate.csv';
       a.click();
+    }
+
+    function normalizeRows(rows) {
+      const normalized = [];
+
+      rows.forEach(row => {
+        const datetime = String(row.fecha_hora || row.datetime || row.date_time || row.fecha || '').trim();
+        const week = String(row.semana || row.week || '').trim();
+        const city = String(row.ciudad || row.city || '').trim();
+        const channel = String(row.canal || row.channel || '').trim();
+        const product = String(row.producto || row.product || '').trim();
+        const source = String(row.fuente || row.source || '').trim();
+        const volume = String(row.volumen || row.volume || row.referencia || '').trim();
+        const priceRaw = row.precio ?? row.price ?? '';
+
+        const price = Number(String(priceRaw).replace(/\./g, '').replace(',', '.'));
+
+        if (!week || !city || !channel || !product || !price) return;
+
+        normalized.push({
+          datetime,
+          week,
+          city,
+          channel,
+          product,
+          price,
+          source,
+          volume
+        });
+      });
+
+      return normalized;
+    }
+
+    function applyImportedRows(rows) {
+      const normalized = normalizeRows(rows);
+
+      normalized.forEach(r => {
+        if (!state.cities.includes(r.city)) state.cities.push(r.city);
+        if (!state.products.includes(r.product)) state.products.push(r.product);
+        upsertRecord(r);
+      });
+
+      saveState();
+      refreshAll();
     }
 
     function importExcelFile(event) {
       const file = event.target.files[0];
       if (!file) return;
+
       const name = file.name.toLowerCase();
       const reader = new FileReader();
+
       reader.onload = e => {
         try {
-          let workbook;
-          if (name.endsWith('.csv')) workbook = XLSX.read(e.target.result, { type: 'string' });
-          else workbook = XLSX.read(e.target.result, { type: 'array' });
-          const sheetName = workbook.SheetNames[0];
-          const sheet = workbook.Sheets[sheetName];
-          const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-          let ok = 0;
-          rows.forEach(row => {
-            const week = String(row.Semana || row.semana || '').trim();
-            const city = String(row.Ciudad || row.ciudad || '').trim();
-            const product = String(row.Producto || row.producto || '').trim();
-            const priceRaw = row.Precio ?? row.precio ?? '';
-            const price = Number(String(priceRaw).replace(/\./g, '').replace(',', '.'));
-            if (!week || !city || !product || !price) return;
-            if (!state.cities.includes(city)) state.cities.push(city);
-            if (!state.products.includes(product)) state.products.push(product);
-            upsertPrice({ week, city, product, price });
-            ok++;
-          });
-          saveState();
-          refreshAll();
-          alert(`Importación completada. Registros cargados: ${ok}`);
-        } catch (err) {
-          alert('No se pudo leer el archivo Excel. Verifica columnas: Semana, Ciudad, Producto, Precio.');
+          const workbook = name.endsWith('.csv')
+            ? XLSX.read(e.target.result, { type:'string' })
+            : XLSX.read(e.target.result, { type:'array' });
+
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet, { defval:'' });
+
+          applyImportedRows(rows);
+          alert(`Importación completada. Registros procesados: ${rows.length}`);
+        } catch {
+          alert('No se pudo leer el archivo. Verifica columnas.');
         }
       };
+
       if (name.endsWith('.csv')) reader.readAsText(file, 'utf-8');
       else reader.readAsArrayBuffer(file);
+
       event.target.value = '';
     }
 
-    function importData(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = e => {
-        try {
-          const data = JSON.parse(e.target.result);
-          if (!data.cities || !data.products || !data.prices) throw new Error('Formato inválido');
-          state = data;
-          saveState();
-          refreshAll();
-          alert('Datos importados correctamente.');
-        } catch {
-          alert('No se pudo importar el archivo JSON.');
+    function saveAutoConfig() {
+      config.autoMode = document.getElementById('autoMode').value;
+      config.remoteUrl = document.getElementById('remoteUrl').value.trim();
+      config.refreshMinutes = Number(document.getElementById('refreshMinutes').value || 0);
+      config.sourceNotes = document.getElementById('sourceNotes').value.trim();
+      saveConfigStorage();
+      updateRemoteStatus();
+      scheduleAutoRefresh();
+    }
+
+    function applyConfigToUI() {
+      document.getElementById('autoMode').value = config.autoMode || 'none';
+      document.getElementById('remoteUrl').value = config.remoteUrl || '';
+      document.getElementById('refreshMinutes').value = config.refreshMinutes || 0;
+      document.getElementById('sourceNotes').value = config.sourceNotes || '';
+      updateRemoteStatus();
+      scheduleAutoRefresh();
+    }
+
+    function updateRemoteStatus(message = '') {
+      const badge = document.getElementById('remoteStatusBadge');
+      const text = document.getElementById('remoteStatusText');
+
+      if (!config.remoteUrl || config.autoMode === 'none') {
+        badge.className = 'status-badge status-off';
+        badge.textContent = 'Desactivado';
+        text.textContent = message || 'Sin conexión remota configurada.';
+        return;
+      }
+
+      badge.className = 'status-badge status-ok';
+      badge.textContent = 'Configurado';
+      text.textContent = message || `${config.autoMode.toUpperCase()} listo${config.sourceNotes ? ' · ' + config.sourceNotes : ''}`;
+    }
+
+    async function refreshRemoteData() {
+      if (!config.remoteUrl || config.autoMode === 'none') {
+        alert('Configura primero una URL remota y un modo de carga.');
+        return;
+      }
+
+      try {
+        updateRemoteStatus('Consultando fuente remota...');
+        const res = await fetch(config.remoteUrl, { cache:'no-store' });
+        if (!res.ok) throw new Error();
+
+        if (config.autoMode === 'json') {
+          const data = await res.json();
+          const rows = Array.isArray(data) ? data : (data.rows || data.data || []);
+          applyImportedRows(rows);
+        } else {
+          const text = await res.text();
+          const workbook = XLSX.read(text, { type:'string' });
+          const sheet = workbook.Sheets[workbook.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(sheet, { defval:'' });
+          applyImportedRows(rows);
         }
-      };
-      reader.readAsText(file);
-      event.target.value = '';
+
+        updateRemoteStatus('Fuente remota actualizada correctamente.');
+        alert('Fuente remota actualizada correctamente.');
+      } catch {
+        updateRemoteStatus('Error al actualizar la fuente remota.');
+        document.getElementById('remoteStatusBadge').className = 'status-badge status-bad';
+        document.getElementById('remoteStatusBadge').textContent = 'Error';
+        alert('No se pudo actualizar la fuente remota. Verifica la URL pública y el formato.');
+      }
+    }
+
+    function scheduleAutoRefresh() {
+      if (autoTimer) {
+        clearInterval(autoTimer);
+        autoTimer = null;
+      }
+
+      if (config.refreshMinutes && config.refreshMinutes > 0 && config.autoMode !== 'none' && config.remoteUrl) {
+        autoTimer = setInterval(() => {
+          refreshRemoteData();
+        }, config.refreshMinutes * 60000);
+      }
     }
 
     function resetAll() {
@@ -918,35 +1205,68 @@ Lambaré | 2026-W11 | Tomate | 12100</textarea>
     }
 
     function seedDemoData() {
-      state = { cities: Object.keys(CITY_META), products: [...DEFAULT_PRODUCTS], prices: [] };
+      state = {
+        cities: Object.keys(CITY_META),
+        products: [...DEFAULT_PRODUCTS],
+        prices: []
+      };
+
       const data = [
-        ['2026-W10','Asunción','Tomate',9800],['2026-W10','Lambaré','Tomate',9600],['2026-W10','San Lorenzo','Tomate',9900],['2026-W10','Capiatá','Tomate',9700],['2026-W10','Luque','Tomate',9850],['2026-W10','Fernando de la Mora','Tomate',9750],['2026-W10','Encarnación','Tomate',9400],['2026-W10','Ciudad del Este','Tomate',9300],['2026-W10','Coronel Oviedo','Tomate',9500],['2026-W10','Pedro Juan Caballero','Tomate',9200],['2026-W10','Concepción','Tomate',9350],
-        ['2026-W10','Asunción','Carne vacuna',35500],['2026-W10','Lambaré','Carne vacuna',35200],['2026-W10','San Lorenzo','Carne vacuna',35600],['2026-W10','Capiatá','Carne vacuna',35100],['2026-W10','Luque','Carne vacuna',35400],['2026-W10','Fernando de la Mora','Carne vacuna',35350],['2026-W10','Encarnación','Carne vacuna',34800],['2026-W10','Ciudad del Este','Carne vacuna',34600],['2026-W10','Coronel Oviedo','Carne vacuna',34950],['2026-W10','Pedro Juan Caballero','Carne vacuna',34700],['2026-W10','Concepción','Carne vacuna',34850],
-        ['2026-W10','Asunción','Aceite',14800],['2026-W10','Lambaré','Aceite',14700],['2026-W10','San Lorenzo','Aceite',14900],['2026-W10','Capiatá','Aceite',14850],['2026-W10','Luque','Aceite',14950],['2026-W10','Fernando de la Mora','Aceite',14820],['2026-W10','Encarnación','Aceite',14500],['2026-W10','Ciudad del Este','Aceite',14450],['2026-W10','Coronel Oviedo','Aceite',14650],['2026-W10','Pedro Juan Caballero','Aceite',14580],['2026-W10','Concepción','Aceite',14610],
-        ['2026-W11','Asunción','Tomate',11800],['2026-W11','Lambaré','Tomate',11650],['2026-W11','San Lorenzo','Tomate',12100],['2026-W11','Capiatá','Tomate',11900],['2026-W11','Luque','Tomate',12000],['2026-W11','Fernando de la Mora','Tomate',11750],['2026-W11','Encarnación','Tomate',11100],['2026-W11','Ciudad del Este','Tomate',11050],['2026-W11','Coronel Oviedo','Tomate',11300],['2026-W11','Pedro Juan Caballero','Tomate',10900],['2026-W11','Concepción','Tomate',11200],
-        ['2026-W11','Asunción','Carne vacuna',36800],['2026-W11','Lambaré','Carne vacuna',36500],['2026-W11','San Lorenzo','Carne vacuna',36950],['2026-W11','Capiatá','Carne vacuna',36400],['2026-W11','Luque','Carne vacuna',36700],['2026-W11','Fernando de la Mora','Carne vacuna',36620],['2026-W11','Encarnación','Carne vacuna',35800],['2026-W11','Ciudad del Este','Carne vacuna',35750],['2026-W11','Coronel Oviedo','Carne vacuna',36000],['2026-W11','Pedro Juan Caballero','Carne vacuna',35650],['2026-W11','Concepción','Carne vacuna',35980],
-        ['2026-W11','Asunción','Aceite',15100],['2026-W11','Lambaré','Aceite',15050],['2026-W11','San Lorenzo','Aceite',15220],['2026-W11','Capiatá','Aceite',15180],['2026-W11','Luque','Aceite',15250],['2026-W11','Fernando de la Mora','Aceite',15150],['2026-W11','Encarnación','Aceite',14720],['2026-W11','Ciudad del Este','Aceite',14680],['2026-W11','Coronel Oviedo','Aceite',14810],['2026-W11','Pedro Juan Caballero','Aceite',14750],['2026-W11','Concepción','Aceite',14800],
-        ['2026-W12','Asunción','Tomate',13200],['2026-W12','Lambaré','Tomate',12950],['2026-W12','San Lorenzo','Tomate',13500],['2026-W12','Capiatá','Tomate',13320],['2026-W12','Luque','Tomate',13400],['2026-W12','Fernando de la Mora','Tomate',13100],['2026-W12','Encarnación','Tomate',12200],['2026-W12','Ciudad del Este','Tomate',12050],['2026-W12','Coronel Oviedo','Tomate',12450],['2026-W12','Pedro Juan Caballero','Tomate',11980],['2026-W12','Concepción','Tomate',12300],
-        ['2026-W12','Asunción','Carne vacuna',37900],['2026-W12','Lambaré','Carne vacuna',37600],['2026-W12','San Lorenzo','Carne vacuna',38120],['2026-W12','Capiatá','Carne vacuna',37480],['2026-W12','Luque','Carne vacuna',37810],['2026-W12','Fernando de la Mora','Carne vacuna',37750],['2026-W12','Encarnación','Carne vacuna',36580],['2026-W12','Ciudad del Este','Carne vacuna',36300],['2026-W12','Coronel Oviedo','Carne vacuna',36950],['2026-W12','Pedro Juan Caballero','Carne vacuna',36280],['2026-W12','Concepción','Carne vacuna',36640],
-        ['2026-W12','Asunción','Aceite',15480],['2026-W12','Lambaré','Aceite',15390],['2026-W12','San Lorenzo','Aceite',15620],['2026-W12','Capiatá','Aceite',15580],['2026-W12','Luque','Aceite',15610],['2026-W12','Fernando de la Mora','Aceite',15490],['2026-W12','Encarnación','Aceite',14910],['2026-W12','Ciudad del Este','Aceite',14880],['2026-W12','Coronel Oviedo','Aceite',15050],['2026-W12','Pedro Juan Caballero','Aceite',14980],['2026-W12','Concepción','Aceite',15010],
-        ['2026-W12','Asunción','Arroz',8900],['2026-W12','Lambaré','Arroz',8800],['2026-W12','San Lorenzo','Arroz',9050],['2026-W12','Capiatá','Arroz',8950],['2026-W12','Luque','Arroz',9020],['2026-W12','Fernando de la Mora','Arroz',8960],['2026-W12','Encarnación','Arroz',8700],['2026-W12','Ciudad del Este','Arroz',8680],['2026-W12','Coronel Oviedo','Arroz',8750],['2026-W12','Pedro Juan Caballero','Arroz',8600],['2026-W12','Concepción','Arroz',8720]
+        ['2026-03-19T08:00','2026-W12','Asunción','Mayorista','Tomate',5200,'Abasto','caja 20 kg'],
+        ['2026-03-19T10:00','2026-W12','Asunción','Minorista','Tomate',16500,'Supermercado','kg'],
+        ['2026-03-19T07:30','2026-W12','Asunción','Finca','Tomate',4000,'Productor','kg'],
+        ['2026-03-19T09:00','2026-W12','Asunción','SENAVE','Tomate',5200,'Referencia regulatoria','contexto'],
+
+        ['2026-03-19T08:15','2026-W12','Ciudad del Este','Mayorista','Tomate',5600,'Abasto CDE','caja 20 kg'],
+        ['2026-03-19T10:20','2026-W12','Ciudad del Este','Minorista','Tomate',17000,'Mercado minorista','kg'],
+        ['2026-03-19T07:40','2026-W12','Ciudad del Este','Finca','Tomate',4200,'Productor','kg'],
+
+        ['2026-03-19T08:30','2026-W12','Encarnación','Mayorista','Tomate',5000,'Mercado local','caja 20 kg'],
+        ['2026-03-19T10:10','2026-W12','Encarnación','Minorista','Tomate',15800,'Supermercado','kg'],
+        ['2026-03-19T07:20','2026-W12','Encarnación','Finca','Tomate',3900,'Productor','kg'],
+
+        ['2026-03-12T08:00','2026-W11','Asunción','Mayorista','Tomate',6800,'Abasto','caja 20 kg'],
+        ['2026-03-12T10:00','2026-W11','Asunción','Minorista','Tomate',17500,'Supermercado','kg'],
+        ['2026-03-12T07:30','2026-W11','Asunción','Finca','Tomate',4500,'Productor','kg'],
+
+        ['2026-03-12T08:15','2026-W11','Ciudad del Este','Mayorista','Tomate',7100,'Abasto CDE','caja 20 kg'],
+        ['2026-03-12T10:20','2026-W11','Ciudad del Este','Minorista','Tomate',18200,'Mercado minorista','kg'],
+        ['2026-03-12T07:40','2026-W11','Ciudad del Este','Finca','Tomate',4700,'Productor','kg'],
+
+        ['2026-03-12T08:30','2026-W11','Encarnación','Mayorista','Tomate',6400,'Mercado local','caja 20 kg'],
+        ['2026-03-12T10:10','2026-W11','Encarnación','Minorista','Tomate',16900,'Supermercado','kg'],
+        ['2026-03-12T07:20','2026-W11','Encarnación','Finca','Tomate',4300,'Productor','kg']
       ];
-      data.forEach(row => {
-        const [week, city, product, price] = row;
-        if (CITY_META[city]) state.prices.push({ week, city, product, price });
+
+      data.forEach(([datetime, week, city, channel, product, price, source, volume]) => {
+        upsertRecord({ datetime, week, city, channel, product, price, source, volume });
       });
+
       saveState();
       refreshAll();
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
+    function refreshAll() {
       fillSelectors();
-      setDefaultWeek();
+      setDefaultInputs();
+      updateKPIs();
+      updateExecutiveSummary();
+      renderMap();
+      renderHourlyChart();
+      renderRanking();
+      renderPriceTable();
+      updateRemoteStatus();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
       initMap();
+      applyConfigToUI();
+      fillSelectors();
+      setDefaultInputs();
+
       if (!state.prices.length) seedDemoData();
       else refreshAll();
     });
   </script>
 </body>
 </html>
-
