@@ -3,1644 +3,938 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Observatorio de Precios Paraguay 5.0</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <title>Sistema de Monitoreo de Precios - Paraguay PRO</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
   <style>
     :root {
-      --line: #23375f;
-      --text: #eaf1ff;
-      --muted: #9db0d3;
-      --good: #57d38c;
-      --warn: #f2c24c;
-      --bad: #ff6f6f;
-      --shadow: 0 18px 44px rgba(0, 0, 0, .28);
-      --radius: 22px;
+      --navy: #0b1f3a;
+      --navy-2: #12345b;
+      --blue: #1d5fa7;
+      --sky: #dce9f8;
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1b2430;
+      --muted: #667085;
+      --border: #d9e2ec;
+      --green: #1f9d55;
+      --amber: #d97706;
+      --red: #c0392b;
+      --shadow: 0 10px 24px rgba(10, 37, 64, 0.08);
+      --radius: 18px;
     }
 
     * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; }
 
     body {
-      font-family: 'Inter', system-ui, sans-serif;
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
       color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(75,147,255,.18), transparent 28%),
-        radial-gradient(circle at top right, rgba(105,211,255,.10), transparent 22%),
-        linear-gradient(180deg, #06101d, #0b1326 35%, #09111f 100%);
-    }
-
-    .shell {
-      max-width: 1600px;
-      margin: 0 auto;
-      padding: 20px;
     }
 
     .topbar {
-      display: grid;
-      grid-template-columns: 1.35fr .65fr;
+      background: linear-gradient(135deg, var(--navy), var(--navy-2));
+      color: #fff;
+      padding: 18px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 18px;
-      margin-bottom: 18px;
+      flex-wrap: wrap;
+      border-bottom: 4px solid #274c77;
     }
 
-    .card {
-      background: linear-gradient(180deg, rgba(18,29,53,.96), rgba(11,19,35,.98));
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.12);
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      font-weight: 700;
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.15;
+      letter-spacing: 0.2px;
+    }
+
+    .brand p {
+      margin: 5px 0 0;
+      color: rgba(255,255,255,0.82);
+      font-size: 13px;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    .container {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 24px;
     }
 
     .hero {
-      padding: 26px 28px;
-      position: relative;
-      overflow: hidden;
+      background: linear-gradient(135deg, #fefefe, #edf4fc);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 20px;
+      margin-bottom: 22px;
     }
 
-    .hero::after {
-      content: '';
-      position: absolute;
-      inset: auto -40px -40px auto;
-      width: 220px;
-      height: 220px;
-      background: radial-gradient(circle, rgba(75,147,255,.22), transparent 68%);
-      pointer-events: none;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(75,147,255,.10);
-      border: 1px solid rgba(75,147,255,.25);
-      color: #dfeaff;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .3px;
-      text-transform: uppercase;
-      margin-bottom: 14px;
-    }
-
-    h1 {
+    .hero h2 {
       margin: 0 0 10px;
-      font-size: 34px;
-      line-height: 1.08;
+      font-size: 28px;
+      color: var(--navy);
     }
 
-    .sub {
+    .hero p {
       margin: 0;
       color: var(--muted);
-      line-height: 1.65;
-      max-width: 940px;
+      line-height: 1.5;
       font-size: 15px;
     }
 
-    .hero-tags, .actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 16px;
-    }
-
-    .tag {
-      padding: 9px 12px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-      color: #dae6ff;
-      font-size: 12px;
-      font-weight: 600;
-    }
-
-    .side {
-      padding: 22px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 14px;
-    }
-
-    .side-title {
-      margin: 0;
-      font-size: 18px;
-      font-weight: 800;
-    }
-
-    .side p {
-      color: var(--muted);
-      line-height: 1.6;
-      margin: 0;
-      font-size: 14px;
-    }
-
-    .btn, .file-label {
-      appearance: none;
-      border: 0;
-      border-radius: 14px;
-      padding: 11px 15px;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-      transition: transform .15s ease;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      background: linear-gradient(180deg, #4b93ff, #2e6fd7);
-      box-shadow: 0 10px 20px rgba(46,111,215,.24);
-    }
-
-    .btn:hover, .file-label:hover { transform: translateY(-1px); }
-
-    .btn.secondary, .file-label.secondary {
-      background: #152441;
-      border: 1px solid var(--line);
-      box-shadow: none;
-      color: var(--text);
-    }
-
-    .btn.warn {
-      background: linear-gradient(180deg, #f2c24c, #d59d18);
-      color: #1b1400;
-    }
-
-    .btn.danger {
-      background: linear-gradient(180deg, #ff8787, #e04d4d);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 18px;
-    }
-
-    .kpi {
-      grid-column: span 3;
-      padding: 20px;
-    }
-
-    .kpi-label {
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
-
-    .kpi-value {
-      font-size: 29px;
-      font-weight: 800;
-    }
-
-    .kpi-foot {
-      margin-top: 8px;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .panel { padding: 20px; }
-    .panel h3 { margin: 0 0 14px; font-size: 19px; }
-
-    .notes {
-      color: var(--muted);
-      line-height: 1.65;
-      font-size: 13px;
-    }
-
-    .map-panel { grid-column: span 7; }
-    .ops-panel { grid-column: span 5; }
-    .chart-panel { grid-column: span 7; }
-    .rank-panel { grid-column: span 5; }
-    .full { grid-column: 1 / -1; }
-
-    .quick-guide {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-
-    .mini-guide {
-      border: 1px dashed rgba(255,255,255,.10);
+    .hero-box {
+      background: #fff;
+      border: 1px solid var(--border);
       border-radius: 18px;
       padding: 16px;
-      background: rgba(255,255,255,.02);
     }
 
-    .mini-guide strong {
-      display: block;
-      margin-bottom: 6px;
+    .hero-box h3 {
+      margin: 0 0 10px;
       font-size: 15px;
+      color: var(--navy);
     }
 
-    #paraguayMap {
-      height: 560px;
-      border-radius: 18px;
-      overflow: hidden;
-      border: 1px solid var(--line);
-    }
-
-    .leaflet-container {
-      background: #dbe7f6;
-      font-family: 'Inter', system-ui, sans-serif;
-    }
-
-    .city-pin {
-      width: 18px;
-      height: 18px;
-      border-radius: 999px;
-      border: 3px solid white;
-      box-shadow: 0 0 0 6px rgba(255,255,255,.18), 0 8px 16px rgba(0,0,0,.18);
-    }
-
-    .legend {
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .legend span {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .dot {
-      width: 11px;
-      height: 11px;
-      border-radius: 999px;
-      display: inline-block;
-    }
-
-    .form-grid {
+    .hero-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, 1fr);
       gap: 12px;
     }
 
-    label {
-      display: block;
-      font-size: 13px;
-      color: #cfe0ff;
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-
-    input, select, textarea {
-      width: 100%;
+    .hero-metric {
+      background: #f7fafd;
+      border: 1px solid var(--border);
       border-radius: 14px;
-      border: 1px solid var(--line);
-      background: #0d1730;
-      color: var(--text);
-      padding: 12px 13px;
-      font: inherit;
-      outline: none;
+      padding: 12px;
     }
 
-    textarea {
-      min-height: 100px;
-      resize: vertical;
+    .hero-metric .label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
     }
 
-    .box {
-      margin-top: 14px;
-      padding: 15px;
-      border-radius: 18px;
-      background: rgba(255,255,255,.03);
-      border: 1px solid rgba(255,255,255,.08);
+    .hero-metric .value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--navy);
     }
 
     .toolbar {
       display: grid;
-      grid-template-columns: 1.4fr 1fr 1fr 1fr auto auto;
-      gap: 10px;
-      margin-bottom: 14px;
+      grid-template-columns: repeat(6, minmax(120px, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .filter {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .filter label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .filter select,
+    .filter input,
+    .filter button {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .filter button {
+      cursor: pointer;
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+      font-weight: 700;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .metric-title {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .metric-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .metric-sub {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .status {
+      display: inline-flex;
       align-items: center;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .green { background: #e7f8ef; color: var(--green); }
+    .amber { background: #fff4e5; color: var(--amber); }
+    .red { background: #fdeceb; color: var(--red); }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      margin: 0 0 16px;
+      font-size: 18px;
+      color: var(--navy);
+    }
+
+    .chart-box {
+      position: relative;
+      min-height: 330px;
     }
 
     .table-wrap {
-      overflow: auto;
-      border-radius: 18px;
-      border: 1px solid var(--line);
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 14px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 900px;
-      background: rgba(255,255,255,.015);
+      background: #fff;
     }
 
     th, td {
-      padding: 12px 13px;
-      border-bottom: 1px solid rgba(255,255,255,.06);
+      padding: 12px 10px;
       text-align: left;
+      border-bottom: 1px solid #ecf0f4;
       font-size: 14px;
     }
 
     th {
+      background: #f7fafd;
+      color: var(--navy);
       position: sticky;
       top: 0;
-      background: #132441;
       z-index: 1;
     }
 
-    .right { text-align: right; }
-    .up { color: var(--bad); }
-    .down { color: var(--good); }
-    .flat { color: var(--warn); }
+    .num { text-align: right; }
+    .center { text-align: center; }
 
-    .pill {
+    .delta-up { color: var(--red); font-weight: 700; }
+    .delta-down { color: var(--green); font-weight: 700; }
+    .delta-flat { color: var(--muted); font-weight: 700; }
+
+    .badge {
       display: inline-block;
-      padding: 5px 10px;
-      border-radius: 999px;
       font-size: 12px;
-      font-weight: 800;
-    }
-
-    .pill-good {
-      background: rgba(87,211,140,.12);
-      color: #8ff0b4;
-      border: 1px solid rgba(87,211,140,.24);
-    }
-
-    .pill-warn {
-      background: rgba(242,194,76,.12);
-      color: #ffd770;
-      border: 1px solid rgba(242,194,76,.22);
-    }
-
-    .pill-bad {
-      background: rgba(255,111,111,.12);
-      color: #ffaaaa;
-      border: 1px solid rgba(255,111,111,.24);
-    }
-
-    .status-badge {
       padding: 6px 10px;
       border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
+      font-weight: 700;
+      border: 1px solid transparent;
     }
 
-    .status-ok { background: rgba(87,211,140,.12); color: #8ff0b4; }
-    .status-off { background: rgba(242,194,76,.12); color: #ffd770; }
-    .status-bad { background: rgba(255,111,111,.12); color: #ffaaaa; }
+    .b-estr { background: #e8f1fb; color: #184e91; border-color: #c9ddf5; }
+    .b-vol { background: #fff6de; color: #9a6700; border-color: #f1de9b; }
+    .b-est { background: #fdeceb; color: #b42318; border-color: #f3c1bd; }
+    .b-der { background: #eef4f7; color: #46616f; border-color: #d6e2e8; }
 
-    .hidden { display: none; }
+    .insight-list {
+      display: grid;
+      gap: 12px;
+    }
 
-    @media (max-width: 1280px) {
-      .topbar, .grid { grid-template-columns: 1fr; }
-      .kpi, .map-panel, .ops-panel, .chart-panel, .rank-panel { grid-column: span 12; }
-      .toolbar { grid-template-columns: 1fr 1fr; }
-      .quick-guide { grid-template-columns: 1fr; }
+    .insight-item {
+      border: 1px solid var(--border);
+      border-left: 5px solid var(--blue);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfdff;
+    }
+
+    .insight-item strong {
+      color: var(--navy);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .footer-note {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1200px) {
+      .cards { grid-template-columns: repeat(3, 1fr); }
+      .toolbar { grid-template-columns: repeat(3, 1fr); }
+      .grid-2, .grid-3, .hero { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 760px) {
-      .shell { padding: 14px; }
-      .form-grid, .toolbar { grid-template-columns: 1fr; }
-      h1 { font-size: 26px; }
-      #paraguayMap { height: 460px; }
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .toolbar { grid-template-columns: 1fr; }
+      .container { padding: 14px; }
+      .topbar { padding: 16px; }
+      .hero h2 { font-size: 22px; }
     }
   </style>
 </head>
 <body>
-  <div class="shell">
-    <section class="topbar">
-      <div class="card hero">
-        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px;">
-          <img
-            src="Logo OMP.jpg"
-            alt="Logo Observatorio de Precios de Paraguay"
-            style="width:110px;height:110px;object-fit:contain;border-radius:16px;background:rgba(255,255,255,.06);padding:8px;border:1px solid rgba(255,255,255,.08);"
-            onerror="this.style.display='none'"
-          >
-          <div>
-            <div class="eyebrow">Viceministerio de Comercio y Servicios · Paraguay</div>
-            <h1>Observatorio de Precios Paraguay 5.0</h1>
-          </div>
-        </div>
+  <header class="topbar">
+    <div class="brand-wrap">
+      <div class="brand-badge">₲</div>
+      <div class="brand">
+        <h1>Sistema de Monitoreo de Precios</h1>
+        <p>Paraguay PRO · Tablero ejecutivo de seguimiento de canasta, presión inflacionaria y alertas estratégicas</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div class="pill" id="pillSemana">Semana: 2026-W12</div>
+      <div class="pill" id="pillCiudad">Ciudad: Asunción</div>
+      <div class="pill">Versión institucional</div>
+    </div>
+  </header>
 
-        <p class="sub">
-          Panel ejecutivo del observatorio con seguimiento general de canasta, mapa, ranking, informe ejecutivo
-          y un módulo especial para monitoreo del tomate en producción, mayorista y minorista.
+  <main class="container">
+    <section class="hero">
+      <div>
+        <h2>Panel Ejecutivo de Seguimiento de Precios</h2>
+        <p>
+          Este tablero permite monitorear la evolución semanal de productos clave de la canasta paraguaya, separando
+          inflación estructural, volatilidad estacional y presiones estratégicas vinculadas a combustibles y logística.
         </p>
-
-        <div class="hero-tags">
-          <span class="tag">Canasta general</span>
-          <span class="tag">Mapa de inflación</span>
-          <span class="tag">Módulo tomate</span>
-          <span class="tag">Carga Excel</span>
-          <span class="tag">Fuente remota</span>
-          <span class="tag">Informe Viceministro</span>
-        </div>
       </div>
-
-      <div class="card side">
-        <div>
-          <h2 class="side-title">Acciones rápidas</h2>
-          <p>Se mantiene el sistema base. Puedes usar demo, importar Excel, conectar una fuente remota y generar el informe ejecutivo, con énfasis especial en tomate.</p>
-        </div>
-
-        <div class="actions">
-          <button class="btn" onclick="seedDemoData()">Cargar demo</button>
-          <button class="btn secondary" onclick="generateExecutiveReport()">Informe semanal</button>
-          <button class="btn secondary" onclick="refreshRemoteData()">Actualizar fuente remota</button>
-
-          <label class="file-label secondary">
-            Importar Excel
-            <input id="importExcel" type="file" accept=".xlsx,.xls,.csv" class="hidden" onchange="importExcelFile(event)">
-          </label>
-
-          <button class="btn secondary" onclick="downloadData()">Exportar JSON</button>
-          <button class="btn danger" onclick="resetAll()">Reiniciar</button>
+      <div class="hero-box">
+        <h3>Lectura rápida de coyuntura</h3>
+        <div class="hero-grid">
+          <div class="hero-metric">
+            <div class="label">Inflación real estimada</div>
+            <div class="value" id="heroReal">0,0%</div>
+          </div>
+          <div class="hero-metric">
+            <div class="label">Inflación percibida</div>
+            <div class="value" id="heroPercibida">0,0%</div>
+          </div>
+          <div class="hero-metric">
+            <div class="label">Shock estratégico</div>
+            <div class="value" id="heroShock">Bajo</div>
+          </div>
+          <div class="hero-metric">
+            <div class="label">Productos monitoreados</div>
+            <div class="value" id="heroProductos">0</div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="grid">
-      <div class="card panel full">
-        <h3>Configuración de carga automática</h3>
-        <div class="form-grid">
-          <div>
-            <label>Modo de carga</label>
-            <select id="autoMode" onchange="saveAutoConfig()">
-              <option value="none">Desactivado</option>
-              <option value="csv">CSV remoto / Google Sheets publicado</option>
-              <option value="json">JSON remoto</option>
-            </select>
-          </div>
-          <div>
-            <label>URL remota</label>
-            <input id="remoteUrl" type="text" placeholder="Pega aquí la URL pública del CSV o JSON" oninput="saveAutoConfig()">
-          </div>
-          <div>
-            <label>Auto refresh (minutos)</label>
-            <input id="refreshMinutes" type="number" min="0" step="1" placeholder="0 = desactivado" oninput="saveAutoConfig()">
-          </div>
-          <div>
-            <label>Notas fuente</label>
-            <input id="sourceNotes" type="text" placeholder="Ej. relevadores / MAG / mercado / referencia SENAVE" oninput="saveAutoConfig()">
-          </div>
-        </div>
-
-        <div class="box">
-          <strong>Cómo usarlo bien</strong>
-          <div class="notes" style="margin-top:6px;">
-            Este sistema conserva la lógica general del observatorio. Si quieres automatización, publica una base como CSV
-            o JSON público e impórtala aquí. Para tomate, puedes cargar también canales como <strong>Mayorista</strong>,
-            <strong>Minorista</strong> y <strong>Finca</strong>.
-          </div>
-        </div>
-
-        <div class="box">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-            <span id="remoteStatusBadge" class="status-badge status-off">Desactivado</span>
-            <span id="remoteStatusText" class="notes">Sin conexión remota configurada.</span>
-          </div>
-        </div>
+    <section class="toolbar">
+      <div class="filter">
+        <label for="fSemana">Semana</label>
+        <select id="fSemana"></select>
       </div>
-
-      <div class="card panel full">
-        <h3>Resumen ejecutivo semanal</h3>
-        <div class="quick-guide">
-          <div class="mini-guide">
-            <strong>Inflación semanal observada</strong>
-            <div id="execInflation" class="notes">Sin datos.</div>
-          </div>
-          <div class="mini-guide">
-            <strong>Foco regional</strong>
-            <div id="execRegional" class="notes">Sin datos.</div>
-          </div>
-          <div class="mini-guide">
-            <strong>Lectura de cadena</strong>
-            <div id="execProducts" class="notes">Sin datos.</div>
-          </div>
-        </div>
+      <div class="filter">
+        <label for="fCiudad">Ciudad</label>
+        <select id="fCiudad"></select>
       </div>
-
-      <div class="card kpi">
-        <div class="kpi-label">Índice nacional semanal</div>
-        <div id="kpiIndex" class="kpi-value">100,0</div>
-        <div id="kpiIndexFoot" class="kpi-foot flat">Sin variación</div>
+      <div class="filter">
+        <label for="fCanal">Canal</label>
+        <select id="fCanal"></select>
       </div>
-
-      <div class="card kpi">
-        <div class="kpi-label">Ciudad con mayor presión</div>
-        <div id="kpiCity" class="kpi-value">—</div>
-        <div id="kpiCityFoot" class="kpi-foot flat">Sin datos</div>
+      <div class="filter">
+        <label for="fCategoria">Categoría estratégica</label>
+        <select id="fCategoria"></select>
       </div>
-
-      <div class="card kpi">
-        <div class="kpi-label">Producto más volátil</div>
-        <div id="kpiProduct" class="kpi-value">—</div>
-        <div id="kpiProductFoot" class="kpi-foot flat">Sin datos</div>
+      <div class="filter">
+        <label for="searchProducto">Buscar producto</label>
+        <input id="searchProducto" type="text" placeholder="Ej. tomate, carne, diésel" />
       </div>
-
-      <div class="card kpi">
-        <div class="kpi-label">Alertas activas</div>
-        <div id="kpiAlerts" class="kpi-value">0</div>
-        <div class="kpi-foot">Amarillas y rojas</div>
-      </div>
-
-      <div class="card panel full">
-        <h3>Seguimiento especial: tomate</h3>
-        <div class="quick-guide">
-          <div class="mini-guide">
-            <strong>Tomate mayorista</strong>
-            <div id="kpiTomatoWholesale" style="font-size:26px;font-weight:800;">—</div>
-            <div id="kpiTomatoWholesaleFoot" class="notes">Sin datos</div>
-          </div>
-          <div class="mini-guide">
-            <strong>Tomate minorista</strong>
-            <div id="kpiTomatoRetail" style="font-size:26px;font-weight:800;">—</div>
-            <div id="kpiTomatoRetailFoot" class="notes">Sin datos</div>
-          </div>
-          <div class="mini-guide">
-            <strong>Tomate finca / producción</strong>
-            <div id="kpiTomatoFarm" style="font-size:26px;font-weight:800;">—</div>
-            <div id="kpiTomatoFarmFoot" class="notes">Sin datos</div>
-          </div>
-        </div>
-
-        <div class="quick-guide" style="margin-top:14px;">
-          <div class="mini-guide">
-            <strong>Brecha finca → minorista</strong>
-            <div id="kpiTomatoSpread" style="font-size:26px;font-weight:800;">—</div>
-            <div id="kpiTomatoSpreadFoot" class="notes">Sin datos</div>
-          </div>
-          <div class="mini-guide">
-            <strong>Tomate: ciudad crítica</strong>
-            <div id="kpiTomatoCity" style="font-size:26px;font-weight:800;">—</div>
-            <div id="kpiTomatoCityFoot" class="notes">Sin datos</div>
-          </div>
-          <div class="mini-guide">
-            <strong>Alerta tomate</strong>
-            <div id="kpiTomatoAlert" style="font-size:26px;font-weight:800;">—</div>
-            <div id="kpiTomatoAlertFoot" class="notes">Sin datos</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card panel map-panel">
-        <h3>Mapa de inflación por ciudad</h3>
-        <div id="paraguayMap"></div>
-        <div class="legend">
-          <span><i class="dot" style="background:#57d38c"></i> Normal</span>
-          <span><i class="dot" style="background:#f2c24c"></i> Presión</span>
-          <span><i class="dot" style="background:#ff6f6f"></i> Fuerte</span>
-        </div>
-        <div class="notes" style="margin-top:10px;">El mapa sigue mostrando presión general por ciudad. El tomate se analiza aparte en el módulo especial y también entra al informe ejecutivo.</div>
-      </div>
-
-      <div class="card panel ops-panel">
-        <h3>Carga de precios y operación</h3>
-
-        <div class="form-grid">
-          <div>
-            <label>Fecha y hora</label>
-            <input id="datetimeInput" type="datetime-local">
-          </div>
-          <div>
-            <label>Semana</label>
-            <input id="weekInput" type="week">
-          </div>
-          <div>
-            <label>Ciudad</label>
-            <select id="cityInput"></select>
-          </div>
-          <div>
-            <label>Canal</label>
-            <select id="channelInput">
-              <option>General</option>
-              <option>Mayorista</option>
-              <option>Minorista</option>
-              <option>Finca</option>
-              <option>SENAVE</option>
-            </select>
-          </div>
-          <div>
-            <label>Producto</label>
-            <select id="productInput"></select>
-          </div>
-          <div>
-            <label>Precio (Gs.)</label>
-            <input id="priceInput" type="number" min="0" step="1" placeholder="Ej. 14500">
-          </div>
-          <div>
-            <label>Fuente</label>
-            <input id="sourceInput" type="text" placeholder="Ej. Abasto / MAG / supermercado / relevador">
-          </div>
-          <div>
-            <label>Volumen / referencia</label>
-            <input id="volumeInput" type="text" placeholder="Ej. caja 20 kg / kg / lote">
-          </div>
-        </div>
-
-        <div class="actions">
-          <button class="btn" onclick="saveRecord()">Guardar registro</button>
-          <button class="btn secondary" onclick="toggleBulk()">Carga rápida</button>
-        </div>
-
-        <div id="bulkBox" class="box hidden">
-          <label>Pegado masivo</label>
-          <div class="notes" style="margin-bottom:8px;">Formato: fecha_hora | semana | ciudad | canal | producto | precio | fuente | volumen</div>
-          <textarea id="bulkText">2026-03-19 08:00 | 2026-W12 | Asunción | Mayorista | Tomate | 5200 | Abasto | caja 20 kg
-2026-03-19 10:00 | 2026-W12 | Asunción | Minorista | Tomate | 16500 | Supermercado | kg</textarea>
-          <div class="actions">
-            <button class="btn" onclick="processBulkPaste()">Procesar</button>
-            <button class="btn secondary" onclick="toggleBulk()">Cerrar</button>
-          </div>
-        </div>
-
-        <div class="box">
-          <strong>Metodología base del panel</strong>
-          <div class="notes" style="margin-top:6px;">
-            El sistema general sigue calculando índices, ranking y alertas sobre toda la base cargada.
-            El módulo tomate filtra además los registros del producto “Tomate” y los analiza por canal.
-          </div>
-        </div>
-      </div>
-
-      <div class="card panel chart-panel">
-        <div class="actions" style="margin-top:0;margin-bottom:10px;">
-          <button class="btn secondary" onclick="toggleChartMode()">Cambiar vista del gráfico</button>
-        </div>
-        <h3 id="chartTitle">Evolución del índice nacional</h3>
-        <canvas id="mainChart" height="120"></canvas>
-      </div>
-
-      <div class="card panel rank-panel">
-        <h3>Ranking de productos y presión inflacionaria</h3>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Producto</th>
-                <th>Prom. actual</th>
-                <th>Prom. previo</th>
-                <th>Variación</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody id="rankingBody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="card panel full">
-        <h3>Informe para el Viceministro</h3>
-        <div class="box" style="margin-bottom:14px;">
-          <div id="reportBox" class="notes" style="white-space:pre-line;">Pulsa “Informe semanal” para generar el texto ejecutivo.</div>
-        </div>
-        <div class="actions">
-          <button class="btn secondary" onclick="copyReport()">Copiar informe</button>
-        </div>
-      </div>
-
-      <div class="card panel full">
-        <div class="toolbar">
-          <input id="searchBox" placeholder="Buscar por ciudad, canal, producto o fuente..." oninput="renderPriceTable()">
-          <select id="filterCity" onchange="renderPriceTable()"></select>
-          <select id="filterChannel" onchange="renderPriceTable()">
-            <option value="">Todos los canales</option>
-            <option>General</option>
-            <option>Mayorista</option>
-            <option>Minorista</option>
-            <option>Finca</option>
-            <option>SENAVE</option>
-          </select>
-          <select id="filterProduct" onchange="renderPriceTable()"></select>
-          <button class="btn secondary" onclick="downloadCSV()">Exportar CSV</button>
-          <button class="btn warn" onclick="deleteCurrentSelection()">Eliminar selección</button>
-        </div>
-
-        <h3>Base de monitoreo</h3>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th></th>
-                <th>Fecha/hora</th>
-                <th>Semana</th>
-                <th>Ciudad</th>
-                <th>Canal</th>
-                <th>Producto</th>
-                <th class="right">Precio</th>
-                <th>Fuente</th>
-                <th>Volumen</th>
-              </tr>
-            </thead>
-            <tbody id="priceBody"></tbody>
-          </table>
-        </div>
+      <div class="filter">
+        <label>&nbsp;</label>
+        <button id="btnReset">Restablecer filtros</button>
       </div>
     </section>
-  </div>
+
+    <section class="cards">
+      <article class="card">
+        <div class="metric-title">Inflación real</div>
+        <div class="metric-value" id="kpiReal">0,0%</div>
+        <div class="metric-sub">Excluye productos volátiles</div>
+      </article>
+      <article class="card">
+        <div class="metric-title">Inflación percibida</div>
+        <div class="metric-value" id="kpiPercibida">0,0%</div>
+        <div class="metric-sub">Incluye canasta total monitoreada</div>
+      </article>
+      <article class="card">
+        <div class="metric-title">Shock combustible</div>
+        <div class="metric-value" id="kpiComb">0,0%</div>
+        <div class="metric-sub">Nafta, diésel y gas</div>
+      </article>
+      <article class="card">
+        <div class="metric-title">Producto más tensionado</div>
+        <div class="metric-value" id="kpiTop">—</div>
+        <div class="metric-sub" id="kpiTopSub">Sin variación crítica</div>
+      </article>
+      <article class="card">
+        <div class="metric-title">Semáforo país</div>
+        <div id="kpiSemaforo" class="status green">● Estable</div>
+        <div class="metric-sub">Lectura consolidada de presión</div>
+      </article>
+      <article class="card">
+        <div class="metric-title">Registros activos</div>
+        <div class="metric-value" id="kpiRegs">0</div>
+        <div class="metric-sub">Filtrados en el tablero</div>
+      </article>
+    </section>
+
+    <section class="grid-2">
+      <article class="card">
+        <h3 class="section-title">Variación ponderada por producto</h3>
+        <div class="chart-box"><canvas id="chartProductos"></canvas></div>
+      </article>
+      <article class="card">
+        <h3 class="section-title">Composición por categoría estratégica</h3>
+        <div class="chart-box"><canvas id="chartCategorias"></canvas></div>
+      </article>
+    </section>
+
+    <section class="grid-3">
+      <article class="card">
+        <h3 class="section-title">Top subas</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th class="num">Var. %</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyTopSubas"></tbody>
+          </table>
+        </div>
+      </article>
+      <article class="card">
+        <h3 class="section-title">Top bajas</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Categoría</th>
+                <th class="num">Var. %</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyTopBajas"></tbody>
+          </table>
+        </div>
+      </article>
+      <article class="card">
+        <h3 class="section-title">Lecturas ejecutivas</h3>
+        <div class="insight-list" id="insights"></div>
+      </article>
+    </section>
+
+    <section class="card">
+      <h3 class="section-title">Detalle técnico de precios por producto</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Clasificación</th>
+              <th class="num">Precio semana actual</th>
+              <th class="num">Precio semana anterior</th>
+              <th class="num">Var. %</th>
+              <th class="num">Peso</th>
+              <th>Canal</th>
+              <th>Ciudad</th>
+            </tr>
+          </thead>
+          <tbody id="tbodyDetalle"></tbody>
+        </table>
+      </div>
+      <div class="footer-note">
+        Nota metodológica: la inflación real excluye productos volátiles; la inflación percibida incorpora toda la canasta filtrada. El shock de combustible se calcula sobre productos estratégicos vinculados a energía.
+      </div>
+    </section>
+  </main>
 
   <script>
-    const STORAGE_KEY = 'observatorio_precios_py_v50_base_tomate';
-    const CONFIG_KEY = 'observatorio_precios_py_v50_base_tomate_config';
-
-    const CITY_META = {
-      'Asunción': { lat: -25.2867, lng: -57.3333 },
-      'Lambaré': { lat: -25.3468, lng: -57.6065 },
-      'San Lorenzo': { lat: -25.3397, lng: -57.5088 },
-      'Capiatá': { lat: -25.3552, lng: -57.4455 },
-      'Luque': { lat: -25.2686, lng: -57.4919 },
-      'Fernando de la Mora': { lat: -25.3386, lng: -57.5217 },
-      'Encarnación': { lat: -27.3306, lng: -55.8667 },
-      'Ciudad del Este': { lat: -25.5097, lng: -54.6111 },
-      'Coronel Oviedo': { lat: -25.4444, lng: -56.4403 },
-      'Pedro Juan Caballero': { lat: -22.5472, lng: -55.7333 },
-      'Concepción': { lat: -23.4064, lng: -57.4344 }
+    const PRODUCT_META = {
+      "Carne vacuna": { tipo: "estructural", peso: 0.10 },
+      "Pollo": { tipo: "estructural", peso: 0.07 },
+      "Cerdo": { tipo: "estructural", peso: 0.04 },
+      "Leche": { tipo: "estructural", peso: 0.05 },
+      "Queso": { tipo: "estructural", peso: 0.03 },
+      "Huevos": { tipo: "estructural", peso: 0.04 },
+      "Arroz": { tipo: "estructural", peso: 0.05 },
+      "Harina": { tipo: "estructural", peso: 0.03 },
+      "Pan": { tipo: "estructural", peso: 0.04 },
+      "Fideos": { tipo: "estructural", peso: 0.03 },
+      "Aceite": { tipo: "estructural", peso: 0.05 },
+      "Azúcar": { tipo: "estructural", peso: 0.02 },
+      "Sal": { tipo: "estructural", peso: 0.01 },
+      "Tomate": { tipo: "volatil", peso: 0.03 },
+      "Cebolla": { tipo: "volatil", peso: 0.02 },
+      "Papa": { tipo: "volatil", peso: 0.02 },
+      "Locote": { tipo: "volatil", peso: 0.015 },
+      "Banana": { tipo: "volatil", peso: 0.01 },
+      "Naranja": { tipo: "volatil", peso: 0.01 },
+      "Combustible": { tipo: "estrategico", peso: 0.06 },
+      "Diésel": { tipo: "estrategico", peso: 0.05 },
+      "Gas": { tipo: "estrategico", peso: 0.04 },
+      "Transporte público": { tipo: "derivado", peso: 0.03 },
+      "Flete corto": { tipo: "derivado", peso: 0.025 },
+      "Flete largo": { tipo: "derivado", peso: 0.025 },
+      "Electricidad": { tipo: "estructural", peso: 0.02 },
+      "Agua": { tipo: "estructural", peso: 0.01 },
+      "Internet": { tipo: "estructural", peso: 0.01 },
+      "Alquiler": { tipo: "estructural", peso: 0.04 }
     };
 
-    const DEFAULT_PRODUCTS = [
-      'Tomate', 'Carne vacuna', 'Aceite', 'Arroz', 'Azúcar',
-      'Papa', 'Cebolla', 'Pollo', 'Huevos', 'Harina',
-      'Nafta', 'Diesel'
-    ];
+    const SAMPLE_DATA = [
+      ["2026-W11","Asunción","Carne vacuna",40000,"Minorista"],["2026-W12","Asunción","Carne vacuna",42000,"Minorista"],
+      ["2026-W11","Asunción","Pollo",17800,"Minorista"],["2026-W12","Asunción","Pollo",18500,"Minorista"],
+      ["2026-W11","Asunción","Arroz",7200,"Minorista"],["2026-W12","Asunción","Arroz",7500,"Minorista"],
+      ["2026-W11","Asunción","Aceite",11300,"Minorista"],["2026-W12","Asunción","Aceite",12000,"Minorista"],
+      ["2026-W11","Asunción","Pan",6500,"Minorista"],["2026-W12","Asunción","Pan",6800,"Minorista"],
+      ["2026-W11","Asunción","Tomate",11000,"Minorista"],["2026-W12","Asunción","Tomate",16500,"Minorista"],
+      ["2026-W11","Asunción","Cebolla",8200,"Minorista"],["2026-W12","Asunción","Cebolla",9000,"Minorista"],
+      ["2026-W11","Asunción","Papa",7000,"Minorista"],["2026-W12","Asunción","Papa",6800,"Minorista"],
+      ["2026-W11","Asunción","Combustible",8400,"Minorista"],["2026-W12","Asunción","Combustible",8700,"Minorista"],
+      ["2026-W11","Asunción","Diésel",8950,"Minorista"],["2026-W12","Asunción","Diésel",9200,"Minorista"],
+      ["2026-W11","Asunción","Gas",43000,"Minorista"],["2026-W12","Asunción","Gas",45000,"Minorista"],
+      ["2026-W11","Asunción","Transporte público",2400,"Minorista"],["2026-W12","Asunción","Transporte público",2500,"Minorista"],
+      ["2026-W11","Asunción","Leche",7600,"Minorista"],["2026-W12","Asunción","Leche",7900,"Minorista"],
+      ["2026-W11","Asunción","Huevos",22000,"Minorista"],["2026-W12","Asunción","Huevos",23000,"Minorista"],
+      ["2026-W11","Ciudad del Este","Carne vacuna",39500,"Minorista"],["2026-W12","Ciudad del Este","Carne vacuna",41000,"Minorista"],
+      ["2026-W11","Ciudad del Este","Tomate",10500,"Minorista"],["2026-W12","Ciudad del Este","Tomate",15000,"Minorista"],
+      ["2026-W11","Ciudad del Este","Combustible",8350,"Minorista"],["2026-W12","Ciudad del Este","Combustible",8680,"Minorista"],
+      ["2026-W11","Ciudad del Este","Arroz",7100,"Minorista"],["2026-W12","Ciudad del Este","Arroz",7450,"Minorista"],
+      ["2026-W11","Asunción","Tomate",5200,"Mayorista"],["2026-W12","Asunción","Tomate",5900,"Mayorista"],
+      ["2026-W11","Asunción","Tomate",3900,"Finca"],["2026-W12","Asunción","Tomate",4000,"Finca"],
+      ["2026-W11","Asunción","Cebolla",4500,"Mayorista"],["2026-W12","Asunción","Cebolla",4700,"Mayorista"],
+      ["2026-W11","Asunción","Papa",3900,"Mayorista"],["2026-W12","Asunción","Papa",3800,"Mayorista"]
+    ].map(([semana, ciudad, producto, precio, canal]) => ({ semana, ciudad, producto, precio, canal }));
 
-    let state = loadState();
-    let config = loadConfig();
-    let map = null;
-    let markersLayer = null;
-    let mainChart = null;
-    let chartMode = 'national';
-    let autoTimer = null;
+    const els = {
+      fSemana: document.getElementById('fSemana'),
+      fCiudad: document.getElementById('fCiudad'),
+      fCanal: document.getElementById('fCanal'),
+      fCategoria: document.getElementById('fCategoria'),
+      searchProducto: document.getElementById('searchProducto'),
+      btnReset: document.getElementById('btnReset'),
+      pillSemana: document.getElementById('pillSemana'),
+      pillCiudad: document.getElementById('pillCiudad'),
+      kpiReal: document.getElementById('kpiReal'),
+      kpiPercibida: document.getElementById('kpiPercibida'),
+      kpiComb: document.getElementById('kpiComb'),
+      kpiTop: document.getElementById('kpiTop'),
+      kpiTopSub: document.getElementById('kpiTopSub'),
+      kpiSemaforo: document.getElementById('kpiSemaforo'),
+      kpiRegs: document.getElementById('kpiRegs'),
+      heroReal: document.getElementById('heroReal'),
+      heroPercibida: document.getElementById('heroPercibida'),
+      heroShock: document.getElementById('heroShock'),
+      heroProductos: document.getElementById('heroProductos'),
+      tbodyDetalle: document.getElementById('tbodyDetalle'),
+      tbodyTopSubas: document.getElementById('tbodyTopSubas'),
+      tbodyTopBajas: document.getElementById('tbodyTopBajas'),
+      insights: document.getElementById('insights')
+    };
 
-    function loadState() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
-      return {
-        cities: Object.keys(CITY_META),
-        products: [...DEFAULT_PRODUCTS],
-        prices: []
-      };
+    let baseData = [...SAMPLE_DATA];
+    let chartProductos, chartCategorias;
+
+    function uniq(arr) {
+      return [...new Set(arr)].sort((a, b) => String(a).localeCompare(String(b), 'es'));
     }
 
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    function formatGs(v) {
+      return Number(v || 0).toLocaleString('es-PY');
     }
 
-    function loadConfig() {
-      const raw = localStorage.getItem(CONFIG_KEY);
-      if (raw) return JSON.parse(raw);
-      return {
-        autoMode: 'none',
-        remoteUrl: '',
-        refreshMinutes: 0,
-        sourceNotes: ''
-      };
+    function formatPct(v) {
+      const n = Number(v || 0);
+      return `${n.toFixed(1).replace('.', ',')}%`;
     }
 
-    function saveConfigStorage() {
-      localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+    function getMeta(producto) {
+      return PRODUCT_META[producto] || { tipo: 'estructural', peso: 0.01 };
     }
 
-    function normalizeText(v) {
-      return String(v || '').trim().toLowerCase();
+    function fillSelect(select, values, labelAll = 'Todos') {
+      select.innerHTML = '';
+      const optAll = document.createElement('option');
+      optAll.value = '';
+      optAll.textContent = labelAll;
+      select.appendChild(optAll);
+      values.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v;
+        opt.textContent = v;
+        select.appendChild(opt);
+      });
     }
 
-    function fmtGs(v) {
-      if (v == null) return '—';
-      return `Gs. ${Number(v).toLocaleString('es-PY')}`;
+    function getAvailableWeeks() {
+      return uniq(baseData.map(d => d.semana)).sort();
     }
 
-    function fmtPct(v) {
-      if (v == null || Number.isNaN(v)) return '—';
-      return `${v >= 0 ? '+' : ''}${v.toFixed(1).replace('.', ',')}%`;
-    }
-
-    function parseWeekSort(w) {
-      if (!w || !w.includes('-W')) return 0;
-      const [y, n] = w.split('-W');
-      return Number(y) * 100 + Number(n);
-    }
-
-    function getWeeks() {
-      return [...new Set(state.prices.map(p => p.week))].sort((a, b) => parseWeekSort(a) - parseWeekSort(b));
-    }
-
-    function getLatestWeek() {
-      const weeks = getWeeks();
-      return weeks.length ? weeks[weeks.length - 1] : '';
-    }
-
-    function getPreviousWeek(week) {
-      const weeks = getWeeks();
-      const idx = weeks.indexOf(week);
+    function previousWeek(currentWeek) {
+      const weeks = getAvailableWeeks();
+      const idx = weeks.indexOf(currentWeek);
       return idx > 0 ? weeks[idx - 1] : null;
     }
 
-    function fillSelectors() {
-      document.getElementById('cityInput').innerHTML = state.cities.map(c => `<option>${c}</option>`).join('');
-      document.getElementById('productInput').innerHTML = state.products.map(p => `<option>${p}</option>`).join('');
-
-      document.getElementById('filterCity').innerHTML =
-        `<option value="">Todas las ciudades</option>` +
-        state.cities.map(c => `<option>${c}</option>`).join('');
-
-      document.getElementById('filterProduct').innerHTML =
-        `<option value="">Todos los productos</option>` +
-        state.products.map(p => `<option>${p}</option>`).join('');
+    function buildFilters() {
+      const weeks = getAvailableWeeks();
+      fillSelect(els.fSemana, weeks, 'Todas');
+      fillSelect(els.fCiudad, uniq(baseData.map(d => d.ciudad)), 'Todas');
+      fillSelect(els.fCanal, uniq(baseData.map(d => d.canal)), 'Todos');
+      fillSelect(els.fCategoria, ['estructural', 'volatil', 'estrategico', 'derivado'], 'Todas');
+      els.fSemana.value = weeks[weeks.length - 1] || '';
+      els.fCiudad.value = 'Asunción';
+      render();
     }
 
-    function setDefaultInputs() {
-      const week = getLatestWeek();
-      if (week) document.getElementById('weekInput').value = week;
+    function aggregateRows() {
+      const semana = els.fSemana.value;
+      const ciudad = els.fCiudad.value;
+      const canal = els.fCanal.value;
+      const categoria = els.fCategoria.value;
+      const term = els.searchProducto.value.trim().toLowerCase();
+      const prev = previousWeek(semana);
 
-      const dt = new Date();
-      const offset = dt.getTimezoneOffset();
-      const local = new Date(dt.getTime() - offset * 60000).toISOString().slice(0, 16);
-      if (!document.getElementById('datetimeInput').value) {
-        document.getElementById('datetimeInput').value = local;
-      }
-    }
-
-    function upsertRecord(entry) {
-      const idx = state.prices.findIndex(
-        x =>
-          x.datetime === entry.datetime &&
-          x.week === entry.week &&
-          x.city === entry.city &&
-          x.channel === entry.channel &&
-          x.product === entry.product
+      const current = baseData.filter(d =>
+        (!semana || d.semana === semana) &&
+        (!ciudad || d.ciudad === ciudad) &&
+        (!canal || d.canal === canal)
       );
-      if (idx >= 0) state.prices[idx] = entry;
-      else state.prices.push(entry);
-    }
 
-    function saveRecord() {
-      const entry = {
-        datetime: document.getElementById('datetimeInput').value,
-        week: document.getElementById('weekInput').value,
-        city: document.getElementById('cityInput').value,
-        channel: document.getElementById('channelInput').value,
-        product: document.getElementById('productInput').value,
-        price: Number(document.getElementById('priceInput').value),
-        source: document.getElementById('sourceInput').value.trim(),
-        volume: document.getElementById('volumeInput').value.trim()
-      };
+      const prevRows = baseData.filter(d =>
+        prev && d.semana === prev &&
+        (!ciudad || d.ciudad === ciudad) &&
+        (!canal || d.canal === canal)
+      );
 
-      if (!entry.datetime || !entry.week || !entry.city || !entry.channel || !entry.product || !entry.price) {
-        alert('Completa fecha/hora, semana, ciudad, canal, producto y precio.');
-        return;
-      }
-
-      if (!state.cities.includes(entry.city)) state.cities.push(entry.city);
-      if (!state.products.includes(entry.product)) state.products.push(entry.product);
-
-      upsertRecord(entry);
-      saveState();
-      refreshAll();
-    }
-
-    function toggleBulk() {
-      document.getElementById('bulkBox').classList.toggle('hidden');
-    }
-
-    function processBulkPaste() {
-      const text = document.getElementById('bulkText').value.trim();
-      if (!text) return;
-
-      let ok = 0;
-      text.split(/\r?\n/).forEach(line => {
-        const parts = line.split('|').map(x => x.trim());
-        if (parts.length < 6) return;
-
-        const [datetime, week, city, channel, product, priceText, source = '', volume = ''] = parts;
-        const price = Number(String(priceText).replace(/\./g, '').replace(',', '.'));
-        if (!datetime || !week || !city || !channel || !product || !price) return;
-
-        if (!state.cities.includes(city)) state.cities.push(city);
-        if (!state.products.includes(product)) state.products.push(product);
-
-        upsertRecord({ datetime, week, city, channel, product, price, source, volume });
-        ok++;
+      const currentMap = new Map();
+      current.forEach(r => {
+        const key = `${r.producto}|${r.canal}|${r.ciudad}`;
+        currentMap.set(key, r);
       });
 
-      saveState();
-      refreshAll();
-      alert(`Registros procesados: ${ok}`);
-    }
-
-    function getAvgPrice(week, city = null, product = null) {
-      const rows = state.prices.filter(
-        p => p.week === week && (!city || p.city === city) && (!product || p.product === product)
-      );
-      if (!rows.length) return null;
-      return rows.reduce((sum, row) => sum + Number(row.price), 0) / rows.length;
-    }
-
-    function getVariation(current, previous) {
-      if (current == null || previous == null || previous === 0) return null;
-      return ((current / previous) - 1) * 100;
-    }
-
-    function getAlertLevel(variation) {
-      if (variation == null) return { text: 'Sin base', className: 'pill-good', color: '#57d38c' };
-      if (variation >= 10) return { text: 'Alerta roja', className: 'pill-bad', color: '#ff6f6f' };
-      if (variation >= 5) return { text: 'Alerta amarilla', className: 'pill-warn', color: '#f2c24c' };
-      return { text: 'Normal', className: 'pill-good', color: '#57d38c' };
-    }
-
-    function getNationalSeries() {
-      const baseWeek = getWeeks()[0];
-      if (!baseWeek) return [];
-
-      const base = getAvgPrice(baseWeek);
-      return getWeeks()
-        .map(week => {
-          const current = getAvgPrice(week);
-          const index = current != null && base ? current / base * 100 : null;
-          return { week, index };
-        })
-        .filter(x => x.index != null);
-    }
-
-    function getProductRanking() {
-      const latest = getLatestWeek();
-      const prev = getPreviousWeek(latest);
-
-      return state.products.map(product => {
-        const current = getAvgPrice(latest, null, product);
-        const previous = prev ? getAvgPrice(prev, null, product) : null;
-        const variation = getVariation(current, previous);
-        return { product, current, previous, variation };
-      }).filter(x => x.current != null)
-        .sort((a, b) => (b.variation ?? -999) - (a.variation ?? -999));
-    }
-
-    function getTomatoWeeklyAvg(channel, week, city = null) {
-      const rows = state.prices
-        .filter(r => r.week === week)
-        .filter(r => normalizeText(r.product) === 'tomate')
-        .filter(r => !channel || r.channel === channel)
-        .filter(r => !city || r.city === city);
-
-      if (!rows.length) return null;
-      return rows.reduce((s, r) => s + Number(r.price), 0) / rows.length;
-    }
-
-    function updateMainKPIs() {
-      const latest = getLatestWeek();
-      const prev = getPreviousWeek(latest);
-      const baseWeek = getWeeks()[0];
-
-      const base = getAvgPrice(baseWeek);
-      const current = getAvgPrice(latest);
-      const nationalIndex = current != null && base ? current / base * 100 : 100;
-      const nationalVariation = getVariation(current, prev ? getAvgPrice(prev) : null);
-
-      document.getElementById('kpiIndex').textContent = nationalIndex.toFixed(1).replace('.', ',');
-      const a = document.getElementById('kpiIndexFoot');
-      a.textContent = nationalVariation == null ? 'Sin variación' : `Variación semanal ${fmtPct(nationalVariation)}`;
-      a.className = `kpi-foot ${nationalVariation > 0 ? 'up' : nationalVariation < 0 ? 'down' : 'flat'}`;
-
-      const cities = state.cities
-        .map(city => ({
-          city,
-          current: getAvgPrice(latest, city),
-          variation: getVariation(getAvgPrice(latest, city), prev ? getAvgPrice(prev, city) : null)
-        }))
-        .filter(x => x.current != null)
-        .sort((a, b) => (b.variation ?? -999) - (a.variation ?? -999));
-
-      const topCity = cities[0];
-      document.getElementById('kpiCity').textContent = topCity ? topCity.city : '—';
-      const b = document.getElementById('kpiCityFoot');
-      b.textContent = topCity ? fmtPct(topCity.variation) : 'Sin datos';
-      b.className = `kpi-foot ${topCity && topCity.variation > 0 ? 'up' : 'flat'}`;
-
-      const ranking = getProductRanking();
-      const topProduct = ranking[0];
-      document.getElementById('kpiProduct').textContent = topProduct ? topProduct.product : '—';
-      const c = document.getElementById('kpiProductFoot');
-      c.textContent = topProduct && topProduct.variation != null ? fmtPct(topProduct.variation) : 'Sin datos';
-      c.className = `kpi-foot ${topProduct && topProduct.variation > 0 ? 'up' : 'flat'}`;
-
-      document.getElementById('kpiAlerts').textContent = ranking.filter(r => (r.variation ?? 0) >= 5).length;
-    }
-
-    function updateTomatoKPIs() {
-      const latest = getLatestWeek();
-      const prev = getPreviousWeek(latest);
-
-      const wholesale = getTomatoWeeklyAvg('Mayorista', latest);
-      const wholesalePrev = prev ? getTomatoWeeklyAvg('Mayorista', prev) : null;
-      const wholesaleVar = getVariation(wholesale, wholesalePrev);
-
-      const retail = getTomatoWeeklyAvg('Minorista', latest);
-      const retailPrev = prev ? getTomatoWeeklyAvg('Minorista', prev) : null;
-      const retailVar = getVariation(retail, retailPrev);
-
-      const farm = getTomatoWeeklyAvg('Finca', latest);
-      const farmPrev = prev ? getTomatoWeeklyAvg('Finca', prev) : null;
-      const farmVar = getVariation(farm, farmPrev);
-
-      document.getElementById('kpiTomatoWholesale').textContent = wholesale != null ? fmtGs(Math.round(wholesale)) : '—';
-      document.getElementById('kpiTomatoWholesaleFoot').textContent = wholesaleVar != null ? fmtPct(wholesaleVar) : 'Sin datos';
-
-      document.getElementById('kpiTomatoRetail').textContent = retail != null ? fmtGs(Math.round(retail)) : '—';
-      document.getElementById('kpiTomatoRetailFoot').textContent = retailVar != null ? fmtPct(retailVar) : 'Sin datos';
-
-      document.getElementById('kpiTomatoFarm').textContent = farm != null ? fmtGs(Math.round(farm)) : '—';
-      document.getElementById('kpiTomatoFarmFoot').textContent = farmVar != null ? fmtPct(farmVar) : 'Sin datos';
-
-      const spread = retail != null && farm != null ? ((retail / farm) - 1) * 100 : null;
-      document.getElementById('kpiTomatoSpread').textContent = spread != null ? `${Math.round(spread)}%` : '—';
-      document.getElementById('kpiTomatoSpreadFoot').textContent = (retail != null && farm != null)
-        ? `${fmtGs(Math.round(retail))} vs ${fmtGs(Math.round(farm))}`
-        : 'Sin datos';
-
-      const cityRows = state.cities.map(city => {
-        const current = getTomatoWeeklyAvg('Mayorista', latest, city);
-        const previous = prev ? getTomatoWeeklyAvg('Mayorista', prev, city) : null;
-        return { city, current, variation: getVariation(current, previous) };
-      }).filter(x => x.current != null).sort((a,b)=>(b.variation ?? -999) - (a.variation ?? -999));
-
-      const topCity = cityRows[0];
-      document.getElementById('kpiTomatoCity').textContent = topCity ? topCity.city : '—';
-      document.getElementById('kpiTomatoCityFoot').textContent = topCity ? fmtPct(topCity.variation) : 'Sin datos';
-
-      const refVariation = wholesaleVar ?? retailVar ?? farmVar;
-      const level = getAlertLevel(refVariation);
-      document.getElementById('kpiTomatoAlert').textContent = level.text.replace('Alerta ', '');
-      document.getElementById('kpiTomatoAlertFoot').textContent = refVariation != null ? fmtPct(refVariation) : 'Sin datos';
-    }
-
-    function updateExecutiveSummary() {
-      const latest = getLatestWeek();
-      const prev = getPreviousWeek(latest);
-      const nationalVar = getVariation(getAvgPrice(latest), prev ? getAvgPrice(prev) : null);
-
-      const cities = state.cities
-        .map(city => ({ city, variation: getVariation(getAvgPrice(latest, city), prev ? getAvgPrice(prev, city) : null) }))
-        .filter(x => x.variation != null)
-        .sort((a, b) => b.variation - a.variation);
-
-      const ranking = getProductRanking().slice(0, 3);
-
-      const tomatoRetail = getTomatoWeeklyAvg('Minorista', latest);
-      const tomatoFarm = getTomatoWeeklyAvg('Finca', latest);
-      const tomatoSpread = tomatoRetail != null && tomatoFarm != null ? ((tomatoRetail / tomatoFarm) - 1) * 100 : null;
-
-      document.getElementById('execInflation').textContent =
-        nationalVar == null
-          ? 'Todavía no hay suficientes semanas para calcular variación nacional.'
-          : `La variación nacional semanal observada es ${fmtPct(nationalVar)} respecto a la semana previa.`;
-
-      document.getElementById('execRegional').textContent =
-        cities.length
-          ? `${cities[0].city} lidera la presión semanal con ${fmtPct(cities[0].variation)}.`
-          : 'Sin datos regionales aún.';
-
-      document.getElementById('execProducts').textContent =
-        tomatoSpread != null
-          ? `En tomate, la brecha estimada entre finca y minorista se ubica en ${Math.round(tomatoSpread)}%.`
-          : (ranking.length ? ranking.map(r => `${r.product} ${fmtPct(r.variation)}`).join(' · ') : 'Sin datos de productos aún.');
-    }
-
-    function initMap() {
-      if (map) return;
-      map = L.map('paraguayMap', { zoomControl: true, attributionControl: true }).setView([-23.3, -58.2], 6);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
-        attribution: '&copy; OpenStreetMap'
-      }).addTo(map);
-      markersLayer = L.layerGroup().addTo(map);
-    }
-
-    function renderMap() {
-      if (!markersLayer) return;
-      markersLayer.clearLayers();
-
-      const latest = getLatestWeek();
-      const prev = getPreviousWeek(latest);
-
-      state.cities.forEach(city => {
-        const meta = CITY_META[city];
-        if (!meta) return;
-
-        const current = getAvgPrice(latest, city);
-        if (current == null) return;
-
-        const variation = getVariation(current, prev ? getAvgPrice(prev, city) : null);
-        const alert = getAlertLevel(variation);
-
-        const icon = L.divIcon({
-          className: '',
-          html: `<div class="city-pin" style="background:${alert.color}"></div>`,
-          iconSize: [18, 18],
-          iconAnchor: [9, 9]
-        });
-
-        const marker = L.marker([meta.lat, meta.lng], { icon }).addTo(markersLayer);
-        marker.bindPopup(`
-          <div style="font-family:Inter,sans-serif; min-width:190px; color:#10203b;">
-            <strong style="font-size:14px;">${city}</strong><br>
-            Índice ciudad: ${fmtGs(Math.round(current))}<br>
-            Variación semanal: ${fmtPct(variation)}<br>
-            Tomate mayorista: ${fmtGs(Math.round(getTomatoWeeklyAvg('Mayorista', latest, city)) || null)}<br>
-            Estado: ${alert.text}
-          </div>
-        `);
+      const prevMap = new Map();
+      prevRows.forEach(r => {
+        const key = `${r.producto}|${r.canal}|${r.ciudad}`;
+        prevMap.set(key, r);
       });
 
-      setTimeout(() => map.invalidateSize(), 50);
+      let rows = [...currentMap.values()].map(r => {
+        const key = `${r.producto}|${r.canal}|${r.ciudad}`;
+        const p = prevMap.get(key);
+        const meta = getMeta(r.producto);
+        const prevPrice = p ? Number(p.precio) : null;
+        const currPrice = Number(r.precio);
+        const varPct = prevPrice && prevPrice !== 0 ? ((currPrice - prevPrice) / prevPrice) * 100 : 0;
+        return {
+          ...r,
+          tipo: meta.tipo,
+          peso: meta.peso,
+          precioActual: currPrice,
+          precioAnterior: prevPrice,
+          variacion: varPct,
+          ponderada: varPct * meta.peso
+        };
+      });
+
+      if (categoria) rows = rows.filter(r => r.tipo === categoria);
+      if (term) rows = rows.filter(r => r.producto.toLowerCase().includes(term));
+
+      return rows.sort((a, b) => b.variacion - a.variacion);
     }
 
-    function chartBaseOptions() {
-      return {
-        responsive: true,
-        plugins: {
-          legend: { labels: { color: '#dbe8ff' } }
-        },
-        scales: {
-          x: { ticks: { color: '#9db0d3' }, grid: { color: 'rgba(255,255,255,.07)' } },
-          y: { ticks: { color: '#9db0d3' }, grid: { color: 'rgba(255,255,255,.07)' } }
-        }
+    function computeKPIs(rows) {
+      const realRows = rows.filter(r => r.tipo !== 'volatil');
+      const combRows = rows.filter(r => r.tipo === 'estrategico');
+
+      const real = realRows.reduce((acc, r) => acc + r.ponderada, 0);
+      const percibida = rows.reduce((acc, r) => acc + r.ponderada, 0);
+      const comb = combRows.reduce((acc, r) => acc + r.variacion, 0) / (combRows.length || 1);
+      const top = rows[0] || null;
+
+      let semaforo = { clase: 'green', texto: '● Estable' };
+      if (real > 2.5 || comb > 4.5) semaforo = { clase: 'red', texto: '● Presión crítica' };
+      else if (real > 1.2 || percibida > 2.5) semaforo = { clase: 'amber', texto: '● Alerta moderada' };
+
+      return { real, percibida, comb, top, semaforo };
+    }
+
+    function badgeTipo(tipo) {
+      const map = {
+        estructural: ['b-estr', 'Estructural'],
+        volatil: ['b-vol', 'Volátil'],
+        estrategico: ['b-est', 'Estratégico'],
+        derivado: ['b-der', 'Derivado']
       };
+      const [cls, txt] = map[tipo] || ['b-estr', tipo];
+      return `<span class="badge ${cls}">${txt}</span>`;
     }
 
-    function renderChart() {
-      const canvas = document.getElementById('mainChart');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      if (mainChart) mainChart.destroy();
-
-      if (chartMode === 'national') {
-        const series = getNationalSeries();
-        document.getElementById('chartTitle').textContent = 'Evolución del índice nacional';
-
-        mainChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: series.map(s => s.week),
-            datasets: [{
-              label: 'Índice nacional',
-              data: series.map(s => Number(s.index.toFixed(2))),
-              borderColor: '#4b93ff',
-              backgroundColor: 'rgba(75,147,255,.14)',
-              fill: true,
-              tension: 0.28,
-              pointRadius: 4,
-              pointBackgroundColor: '#69d3ff'
-            }]
-          },
-          options: chartBaseOptions()
-        });
-      } else {
-        const rows = getWeeks().map(week => ({
-          week,
-          mayorista: getTomatoWeeklyAvg('Mayorista', week),
-          minorista: getTomatoWeeklyAvg('Minorista', week),
-          finca: getTomatoWeeklyAvg('Finca', week)
-        }));
-
-        document.getElementById('chartTitle').textContent = 'Tomate por canal (promedio semanal)';
-
-        mainChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels: rows.map(r => r.week),
-            datasets: [
-              { label: 'Mayorista', data: rows.map(r => r.mayorista), tension: 0.25, borderWidth: 2 },
-              { label: 'Minorista', data: rows.map(r => r.minorista), tension: 0.25, borderWidth: 2 },
-              { label: 'Finca', data: rows.map(r => r.finca), tension: 0.25, borderWidth: 2 }
-            ]
-          },
-          options: chartBaseOptions()
-        });
-      }
+    function deltaClass(v) {
+      if (v > 0.05) return 'delta-up';
+      if (v < -0.05) return 'delta-down';
+      return 'delta-flat';
     }
 
-    function toggleChartMode() {
-      chartMode = chartMode === 'national' ? 'tomato' : 'national';
-      renderChart();
-    }
-
-    function renderRanking() {
-      const body = document.getElementById('rankingBody');
-      const ranking = getProductRanking();
-
-      body.innerHTML = ranking.map((r, i) => {
-        const level = getAlertLevel(r.variation);
-        return `
-          <tr>
-            <td>${i + 1}</td>
-            <td>${r.product}</td>
-            <td>${r.current != null ? fmtGs(Math.round(r.current)) : '—'}</td>
-            <td>${r.previous != null ? fmtGs(Math.round(r.previous)) : '—'}</td>
-            <td class="${(r.variation ?? 0) > 0 ? 'up' : 'flat'}">${fmtPct(r.variation)}</td>
-            <td><span class="pill ${level.className}">${level.text}</span></td>
-          </tr>
-        `;
-      }).join('') || `<tr><td colspan="6">Sin datos aún.</td></tr>`;
-    }
-
-    function renderPriceTable() {
-      const q = document.getElementById('searchBox').value.toLowerCase().trim();
-      const city = document.getElementById('filterCity').value;
-      const channel = document.getElementById('filterChannel').value;
-      const product = document.getElementById('filterProduct').value;
-
-      const rows = [...state.prices]
-        .sort((a, b) => new Date(b.datetime || 0) - new Date(a.datetime || 0))
-        .filter(r => !city || r.city === city)
-        .filter(r => !channel || r.channel === channel)
-        .filter(r => !product || r.product === product)
-        .filter(r => !q || `${r.city} ${r.channel} ${r.product} ${r.source} ${r.week}`.toLowerCase().includes(q));
-
-      document.getElementById('priceBody').innerHTML = rows.map(r => `
+    function renderTables(rows) {
+      els.tbodyDetalle.innerHTML = rows.map(r => `
         <tr>
-          <td><input type="checkbox" data-key="${encodeURIComponent(JSON.stringify(r))}"></td>
-          <td>${r.datetime || '—'}</td>
-          <td>${r.week || '—'}</td>
-          <td>${r.city || '—'}</td>
-          <td>${r.channel || '—'}</td>
-          <td>${r.product || '—'}</td>
-          <td class="right">${fmtGs(r.price)}</td>
-          <td>${r.source || '—'}</td>
-          <td>${r.volume || '—'}</td>
+          <td>${r.producto}</td>
+          <td>${badgeTipo(r.tipo)}</td>
+          <td class="num">${formatGs(r.precioActual)}</td>
+          <td class="num">${r.precioAnterior == null ? '—' : formatGs(r.precioAnterior)}</td>
+          <td class="num ${deltaClass(r.variacion)}">${formatPct(r.variacion)}</td>
+          <td class="num">${(r.peso * 100).toFixed(1).replace('.', ',')}%</td>
+          <td>${r.canal}</td>
+          <td>${r.ciudad}</td>
         </tr>
-      `).join('') || `<tr><td colspan="9">No se encontraron registros.</td></tr>`;
+      `).join('') || `<tr><td colspan="8" class="center">Sin datos para los filtros seleccionados</td></tr>`;
+
+      const subas = [...rows].filter(r => r.variacion > 0).slice(0, 5);
+      const bajas = [...rows].filter(r => r.variacion < 0).sort((a, b) => a.variacion - b.variacion).slice(0, 5);
+
+      els.tbodyTopSubas.innerHTML = subas.map(r => `
+        <tr>
+          <td>${r.producto}</td>
+          <td>${badgeTipo(r.tipo)}</td>
+          <td class="num ${deltaClass(r.variacion)}">${formatPct(r.variacion)}</td>
+        </tr>
+      `).join('') || `<tr><td colspan="3" class="center">Sin subas relevantes</td></tr>`;
+
+      els.tbodyTopBajas.innerHTML = bajas.map(r => `
+        <tr>
+          <td>${r.producto}</td>
+          <td>${badgeTipo(r.tipo)}</td>
+          <td class="num ${deltaClass(r.variacion)}">${formatPct(r.variacion)}</td>
+        </tr>
+      `).join('') || `<tr><td colspan="3" class="center">Sin bajas relevantes</td></tr>`;
     }
 
-    function generateExecutiveReport() {
-      const latest = getLatestWeek();
-      const prev = getPreviousWeek(latest);
+    function renderInsights(rows, kpis) {
+      const tomate = rows.find(r => r.producto === 'Tomate');
+      const combustible = rows.find(r => r.producto === 'Combustible');
+      const estructuralAlta = rows.filter(r => r.tipo === 'estructural' && r.variacion > 0).length;
 
-      if (!latest) {
-        document.getElementById('reportBox').innerText = 'Sin datos disponibles.';
-        return;
-      }
+      const insights = [];
+      insights.push({
+        title: 'Lectura macro semanal',
+        body: `La inflación real estimada se ubica en ${formatPct(kpis.real)}, mientras que la inflación percibida alcanza ${formatPct(kpis.percibida)}.`
+      });
 
-      const avg = getAvgPrice(latest);
-      const prevAvg = prev ? getAvgPrice(prev) : null;
-      const generalVar = getVariation(avg, prevAvg);
-
-      const tomatoWholesale = getTomatoWeeklyAvg('Mayorista', latest);
-      const tomatoWholesalePrev = prev ? getTomatoWeeklyAvg('Mayorista', prev) : null;
-      const tomatoWholesaleVar = getVariation(tomatoWholesale, tomatoWholesalePrev);
-
-      const tomatoRetail = getTomatoWeeklyAvg('Minorista', latest);
-      const tomatoFarm = getTomatoWeeklyAvg('Finca', latest);
-      const tomatoSpread = tomatoRetail != null && tomatoFarm != null ? ((tomatoRetail / tomatoFarm) - 1) * 100 : null;
-
-      const cityRows = state.cities.map(city => {
-        const current = getTomatoWeeklyAvg('Mayorista', latest, city);
-        const previous = prev ? getTomatoWeeklyAvg('Mayorista', prev, city) : null;
-        return { city, current, variation: getVariation(current, previous) };
-      }).filter(x => x.current != null).sort((a,b)=>(b.variation ?? -999) - (a.variation ?? -999));
-
-      const topTomatoCity = cityRows[0];
-      const topProduct = getProductRanking()[0];
-      const tomatoAlert = getAlertLevel(tomatoWholesaleVar);
-
-      const text = `
-📊 INFORME EJECUTIVO DE PRECIOS – PARAGUAY
-Semana: ${latest}
-
-1. Nivel general de precios
-El promedio observado de la base monitoreada se ubica en ${avg != null ? fmtGs(Math.round(avg)) : 'Sin datos'}.
-${generalVar != null ? `Se registra una variación semanal de ${fmtPct(generalVar)}.` : 'Sin base comparativa previa.'}
-
-2. Producto con mayor incidencia general
-${topProduct ? `${topProduct.product} con variación de ${fmtPct(topProduct.variation)}.` : 'Sin datos suficientes.'}
-
-3. Seguimiento especial: tomate
-Mayorista: ${tomatoWholesale != null ? fmtGs(Math.round(tomatoWholesale)) : 'Sin datos'}.
-Minorista: ${tomatoRetail != null ? fmtGs(Math.round(tomatoRetail)) : 'Sin datos'}.
-Finca / producción: ${tomatoFarm != null ? fmtGs(Math.round(tomatoFarm)) : 'Sin datos'}.
-
-4. Brecha de cadena del tomate
-${tomatoSpread != null ? `La brecha estimada entre finca y minorista se ubica en ${Math.round(tomatoSpread)}%.` : 'Sin datos suficientes para calcular la brecha.'}
-
-5. Foco territorial del tomate
-${topTomatoCity ? `${topTomatoCity.city} presenta la mayor presión semanal del tomate con ${fmtPct(topTomatoCity.variation)}.` : 'Sin datos territoriales suficientes para tomate.'}
-
-6. Nivel de alerta del tomate
-${tomatoAlert.text}${tomatoWholesaleVar != null ? ` (${fmtPct(tomatoWholesaleVar)}).` : '.'}
-
-7. Recomendación
-Se recomienda reforzar seguimiento del tomate en los canales mayorista, minorista y finca, manteniendo trazabilidad de brecha de cadena y contraste territorial, sin perder de vista la evolución general de la canasta.
-
----
-Generado automáticamente por el Observatorio de Precios – Paraguay
-`.trim();
-
-      document.getElementById('reportBox').innerText = text;
-    }
-
-    function copyReport() {
-      const text = document.getElementById('reportBox').innerText;
-      navigator.clipboard.writeText(text)
-        .then(() => alert('Informe copiado'))
-        .catch(() => alert('No se pudo copiar automáticamente.'));
-    }
-
-    function deleteCurrentSelection() {
-      const selected = [...document.querySelectorAll('#priceBody input[type="checkbox"]:checked')]
-        .map(x => JSON.parse(decodeURIComponent(x.dataset.key)));
-
-      if (!selected.length) {
-        alert('Selecciona al menos un registro.');
-        return;
-      }
-
-      state.prices = state.prices.filter(
-        p => !selected.some(
-          s =>
-            s.datetime === p.datetime &&
-            s.week === p.week &&
-            s.city === p.city &&
-            s.channel === p.channel &&
-            s.product === p.product &&
-            Number(s.price) === Number(p.price)
-        )
-      );
-
-      saveState();
-      refreshAll();
-    }
-
-    function downloadData() {
-      const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'observatorio_precios_paraguay_v50.json';
-      a.click();
-    }
-
-    function downloadCSV() {
-      const rows = [['fecha_hora', 'semana', 'ciudad', 'canal', 'producto', 'precio', 'fuente', 'volumen']].concat(
-        state.prices.map(p => [p.datetime || '', p.week || '', p.city || '', p.channel || '', p.product || '', p.price || '', p.source || '', p.volume || ''])
-      );
-
-      const csv = rows.map(r => r.join(';')).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'base_monitoreo_observatorio.csv';
-      a.click();
-    }
-
-    function normalizeRows(rows) {
-      const normalized = [];
-
-      rows.forEach(row => {
-        const datetime = String(row.fecha_hora || row.datetime || row.date_time || row.fecha || '').trim();
-        const week = String(row.semana || row.week || '').trim();
-        const city = String(row.ciudad || row.city || '').trim();
-        const channel = String(row.canal || row.channel || 'General').trim();
-        const product = String(row.producto || row.product || '').trim();
-        const source = String(row.fuente || row.source || '').trim();
-        const volume = String(row.volumen || row.volume || row.referencia || '').trim();
-        const priceRaw = row.precio ?? row.price ?? '';
-        const price = Number(String(priceRaw).replace(/\./g, '').replace(',', '.'));
-
-        if (!week || !city || !product || !price) return;
-
-        normalized.push({
-          datetime,
-          week,
-          city,
-          channel,
-          product,
-          price,
-          source,
-          volume
+      if (tomate) {
+        insights.push({
+          title: 'Componente volátil',
+          body: `Tomate registra ${formatPct(tomate.variacion)}. Su comportamiento debe leerse como variación estacional y no necesariamente como presión estructural.`
         });
+      }
+
+      if (combustible) {
+        insights.push({
+          title: 'Shock estratégico',
+          body: `Combustible registra ${formatPct(combustible.variacion)}. Un aumento en esta familia puede transmitirse a logística, distribución y precios minoristas.`
+        });
+      }
+
+      insights.push({
+        title: 'Presión estructural',
+        body: `${estructuralAlta} productos estructurales muestran aumentos en la semana analizada, lo que sugiere ${estructuralAlta >= 4 ? 'una presión más amplia sobre la canasta' : 'una presión aún acotada sobre la canasta'}.`
       });
 
-      return normalized;
+      els.insights.innerHTML = insights.slice(0, 4).map(i => `
+        <div class="insight-item">
+          <strong>${i.title}</strong>
+          <div>${i.body}</div>
+        </div>
+      `).join('');
     }
 
-    function applyImportedRows(rows) {
-      const normalized = normalizeRows(rows);
+    function renderCharts(rows) {
+      const labels = rows.slice(0, 10).map(r => r.producto);
+      const dataVar = rows.slice(0, 10).map(r => Number(r.variacion.toFixed(2)));
 
-      normalized.forEach(r => {
-        if (!state.cities.includes(r.city)) state.cities.push(r.city);
-        if (!state.products.includes(r.product)) state.products.push(r.product);
-        upsertRecord(r);
-      });
+      const byTipo = ['estructural','volatil','estrategico','derivado'].map(tipo => ({
+        tipo,
+        valor: rows.filter(r => r.tipo === tipo).reduce((acc, r) => acc + Math.abs(r.ponderada), 0)
+      }));
 
-      saveState();
-      refreshAll();
-    }
+      if (chartProductos) chartProductos.destroy();
+      if (chartCategorias) chartCategorias.destroy();
 
-    function importExcelFile(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-
-      const name = file.name.toLowerCase();
-      const reader = new FileReader();
-
-      reader.onload = e => {
-        try {
-          const workbook = name.endsWith('.csv')
-            ? XLSX.read(e.target.result, { type: 'string' })
-            : XLSX.read(e.target.result, { type: 'array' });
-
-          const sheet = workbook.Sheets[workbook.SheetNames[0]];
-          const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-
-          applyImportedRows(rows);
-          alert(`Importación completada. Registros procesados: ${rows.length}`);
-        } catch {
-          alert('No se pudo leer el archivo. Verifica columnas.');
+      chartProductos = new Chart(document.getElementById('chartProductos'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: 'Variación %',
+            data: dataVar,
+            borderWidth: 1
+          }]
+        },
+        options: {
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { ticks: { callback: value => `${value}%` } }
+          }
         }
-      };
-
-      if (name.endsWith('.csv')) reader.readAsText(file, 'utf-8');
-      else reader.readAsArrayBuffer(file);
-
-      event.target.value = '';
-    }
-
-    function saveAutoConfig() {
-      config.autoMode = document.getElementById('autoMode').value;
-      config.remoteUrl = document.getElementById('remoteUrl').value.trim();
-      config.refreshMinutes = Number(document.getElementById('refreshMinutes').value || 0);
-      config.sourceNotes = document.getElementById('sourceNotes').value.trim();
-      saveConfigStorage();
-      updateRemoteStatus();
-      scheduleAutoRefresh();
-    }
-
-    function applyConfigToUI() {
-      document.getElementById('autoMode').value = config.autoMode || 'none';
-      document.getElementById('remoteUrl').value = config.remoteUrl || '';
-      document.getElementById('refreshMinutes').value = config.refreshMinutes || 0;
-      document.getElementById('sourceNotes').value = config.sourceNotes || '';
-      updateRemoteStatus();
-      scheduleAutoRefresh();
-    }
-
-    function updateRemoteStatus(message = '') {
-      const badge = document.getElementById('remoteStatusBadge');
-      const text = document.getElementById('remoteStatusText');
-
-      if (!config.remoteUrl || config.autoMode === 'none') {
-        badge.className = 'status-badge status-off';
-        badge.textContent = 'Desactivado';
-        text.textContent = message || 'Sin conexión remota configurada.';
-        return;
-      }
-
-      badge.className = 'status-badge status-ok';
-      badge.textContent = 'Configurado';
-      text.textContent = message || `${config.autoMode.toUpperCase()} listo${config.sourceNotes ? ' · ' + config.sourceNotes : ''}`;
-    }
-
-    async function refreshRemoteData() {
-      if (!config.remoteUrl || config.autoMode === 'none') {
-        alert('Configura primero una URL remota y un modo de carga.');
-        return;
-      }
-
-      try {
-        updateRemoteStatus('Consultando fuente remota...');
-        const res = await fetch(config.remoteUrl, { cache: 'no-store' });
-        if (!res.ok) throw new Error();
-
-        if (config.autoMode === 'json') {
-          const data = await res.json();
-          const rows = Array.isArray(data) ? data : (data.rows || data.data || []);
-          applyImportedRows(rows);
-        } else {
-          const text = await res.text();
-          const workbook = XLSX.read(text, { type: 'string' });
-          const sheet = workbook.Sheets[workbook.SheetNames[0]];
-          const rows = XLSX.utils.sheet_to_json(sheet, { defval: '' });
-          applyImportedRows(rows);
-        }
-
-        updateRemoteStatus('Fuente remota actualizada correctamente.');
-        alert('Fuente remota actualizada correctamente.');
-      } catch {
-        updateRemoteStatus('Error al actualizar la fuente remota.');
-        document.getElementById('remoteStatusBadge').className = 'status-badge status-bad';
-        document.getElementById('remoteStatusBadge').textContent = 'Error';
-        alert('No se pudo actualizar la fuente remota. Verifica la URL pública y el formato.');
-      }
-    }
-
-    function scheduleAutoRefresh() {
-      if (autoTimer) {
-        clearInterval(autoTimer);
-        autoTimer = null;
-      }
-
-      if (config.refreshMinutes && config.refreshMinutes > 0 && config.autoMode !== 'none' && config.remoteUrl) {
-        autoTimer = setInterval(() => {
-          refreshRemoteData();
-        }, config.refreshMinutes * 60000);
-      }
-    }
-
-    function resetAll() {
-      if (!confirm('Esto eliminará los datos guardados en este navegador.')) return;
-      localStorage.removeItem(STORAGE_KEY);
-      state = loadState();
-      refreshAll();
-    }
-
-    function seedDemoData() {
-      state = {
-        cities: Object.keys(CITY_META),
-        products: [...DEFAULT_PRODUCTS],
-        prices: []
-      };
-
-      const data = [
-        ['2026-03-12T08:00','2026-W11','Asunción','Mayorista','Tomate',6800,'Abasto','caja 20 kg'],
-        ['2026-03-12T10:00','2026-W11','Asunción','Minorista','Tomate',17500,'Supermercado','kg'],
-        ['2026-03-12T07:30','2026-W11','Asunción','Finca','Tomate',4500,'Productor','kg'],
-        ['2026-03-12T09:00','2026-W11','Asunción','General','Arroz',8800,'Relevador','kg'],
-        ['2026-03-12T09:10','2026-W11','Asunción','General','Aceite',15100,'Relevador','unidad'],
-        ['2026-03-12T09:20','2026-W11','Asunción','General','Carne vacuna',36800,'Relevador','kg'],
-
-        ['2026-03-12T08:15','2026-W11','Ciudad del Este','Mayorista','Tomate',7100,'Abasto CDE','caja 20 kg'],
-        ['2026-03-12T10:20','2026-W11','Ciudad del Este','Minorista','Tomate',18200,'Mercado minorista','kg'],
-        ['2026-03-12T07:40','2026-W11','Ciudad del Este','Finca','Tomate',4700,'Productor','kg'],
-        ['2026-03-12T09:00','2026-W11','Ciudad del Este','General','Arroz',8680,'Relevador','kg'],
-        ['2026-03-12T09:10','2026-W11','Ciudad del Este','General','Aceite',14680,'Relevador','unidad'],
-        ['2026-03-12T09:20','2026-W11','Ciudad del Este','General','Carne vacuna',35750,'Relevador','kg'],
-
-        ['2026-03-12T08:30','2026-W11','Encarnación','Mayorista','Tomate',6400,'Mercado local','caja 20 kg'],
-        ['2026-03-12T10:10','2026-W11','Encarnación','Minorista','Tomate',16900,'Supermercado','kg'],
-        ['2026-03-12T07:20','2026-W11','Encarnación','Finca','Tomate',4300,'Productor','kg'],
-        ['2026-03-12T09:00','2026-W11','Encarnación','General','Arroz',8700,'Relevador','kg'],
-        ['2026-03-12T09:10','2026-W11','Encarnación','General','Aceite',14720,'Relevador','unidad'],
-        ['2026-03-12T09:20','2026-W11','Encarnación','General','Carne vacuna',35800,'Relevador','kg'],
-
-        ['2026-03-19T08:00','2026-W12','Asunción','Mayorista','Tomate',5200,'Abasto','caja 20 kg'],
-        ['2026-03-19T10:00','2026-W12','Asunción','Minorista','Tomate',16500,'Supermercado','kg'],
-        ['2026-03-19T07:30','2026-W12','Asunción','Finca','Tomate',4000,'Productor','kg'],
-        ['2026-03-19T09:00','2026-W12','Asunción','General','Arroz',8900,'Relevador','kg'],
-        ['2026-03-19T09:10','2026-W12','Asunción','General','Aceite',15480,'Relevador','unidad'],
-        ['2026-03-19T09:20','2026-W12','Asunción','General','Carne vacuna',37900,'Relevador','kg'],
-
-        ['2026-03-19T08:15','2026-W12','Ciudad del Este','Mayorista','Tomate',5600,'Abasto CDE','caja 20 kg'],
-        ['2026-03-19T10:20','2026-W12','Ciudad del Este','Minorista','Tomate',17000,'Mercado minorista','kg'],
-        ['2026-03-19T07:40','2026-W12','Ciudad del Este','Finca','Tomate',4200,'Productor','kg'],
-        ['2026-03-19T09:00','2026-W12','Ciudad del Este','General','Arroz',8680,'Relevador','kg'],
-        ['2026-03-19T09:10','2026-W12','Ciudad del Este','General','Aceite',14880,'Relevador','unidad'],
-        ['2026-03-19T09:20','2026-W12','Ciudad del Este','General','Carne vacuna',36300,'Relevador','kg'],
-
-        ['2026-03-19T08:30','2026-W12','Encarnación','Mayorista','Tomate',5000,'Mercado local','caja 20 kg'],
-        ['2026-03-19T10:10','2026-W12','Encarnación','Minorista','Tomate',15800,'Supermercado','kg'],
-        ['2026-03-19T07:20','2026-W12','Encarnación','Finca','Tomate',3900,'Productor','kg'],
-        ['2026-03-19T09:00','2026-W12','Encarnación','General','Arroz',8700,'Relevador','kg'],
-        ['2026-03-19T09:10','2026-W12','Encarnación','General','Aceite',14910,'Relevador','unidad'],
-        ['2026-03-19T09:20','2026-W12','Encarnación','General','Carne vacuna',36580,'Relevador','kg']
-      ];
-
-      data.forEach(([datetime, week, city, channel, product, price, source, volume]) => {
-        upsertRecord({ datetime, week, city, channel, product, price, source, volume });
       });
 
-      saveState();
-      refreshAll();
+      chartCategorias = new Chart(document.getElementById('chartCategorias'), {
+        type: 'doughnut',
+        data: {
+          labels: byTipo.map(x => x.tipo),
+          datasets: [{
+            data: byTipo.map(x => Number(x.valor.toFixed(2))),
+            borderWidth: 1
+          }]
+        },
+        options: {
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
     }
 
-    function refreshAll() {
-      fillSelectors();
-      setDefaultInputs();
-      updateMainKPIs();
-      updateTomatoKPIs();
-      updateExecutiveSummary();
-      renderMap();
-      renderChart();
-      renderRanking();
-      renderPriceTable();
-      updateRemoteStatus();
+    function render() {
+      const rows = aggregateRows();
+      const kpis = computeKPIs(rows);
+      const semana = els.fSemana.value || 'Todas';
+      const ciudad = els.fCiudad.value || 'Todas';
+
+      els.pillSemana.textContent = `Semana: ${semana}`;
+      els.pillCiudad.textContent = `Ciudad: ${ciudad}`;
+
+      els.kpiReal.textContent = formatPct(kpis.real);
+      els.kpiPercibida.textContent = formatPct(kpis.percibida);
+      els.kpiComb.textContent = formatPct(kpis.comb);
+      els.kpiTop.textContent = kpis.top ? kpis.top.producto : '—';
+      els.kpiTopSub.textContent = kpis.top ? `${formatPct(kpis.top.variacion)} · ${kpis.top.tipo}` : 'Sin variación crítica';
+      els.kpiSemaforo.className = `status ${kpis.semaforo.clase}`;
+      els.kpiSemaforo.textContent = kpis.semaforo.texto;
+      els.kpiRegs.textContent = rows.length;
+
+      els.heroReal.textContent = formatPct(kpis.real);
+      els.heroPercibida.textContent = formatPct(kpis.percibida);
+      els.heroShock.textContent = kpis.comb > 4 ? 'Alto' : kpis.comb > 2 ? 'Medio' : 'Bajo';
+      els.heroProductos.textContent = uniq(rows.map(r => r.producto)).length;
+
+      renderTables(rows);
+      renderInsights(rows, kpis);
+      renderCharts(rows);
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      initMap();
-      applyConfigToUI();
-      fillSelectors();
-      setDefaultInputs();
-
-      if (!state.prices.length) seedDemoData();
-      else refreshAll();
+    [els.fSemana, els.fCiudad, els.fCanal, els.fCategoria].forEach(el => el.addEventListener('change', render));
+    els.searchProducto.addEventListener('input', render);
+    els.btnReset.addEventListener('click', () => {
+      buildFilters();
+      els.searchProducto.value = '';
+      render();
     });
+
+    buildFilters();
   </script>
 </body>
 </html>
